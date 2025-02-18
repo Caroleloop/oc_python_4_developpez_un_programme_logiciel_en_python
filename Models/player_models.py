@@ -3,13 +3,22 @@ import os
 
 
 class Player:
+    counter = 0
+    all_players = []
+
     def __init__(self, last_name, first_name, birthdate, national_chess_identifier, score: int = 0):
         """Initializes player data"""
+        Player.counter += 1
+        self.id = Player.counter
+
         self.last_name = last_name
         self.first_name = first_name
         self.birthdate = birthdate
         self.national_chess_identifier = national_chess_identifier
         self.score = score
+
+        # add player to the list of players
+        Player.all_players.append(self)
 
     def full_name_player(self):
         """Returns the player's full name as 'Last Name First Name'.
@@ -17,74 +26,60 @@ class Player:
         Returns:
             str: Player's full name.
         """
-        return self.first_name + " " + self.last_name
+        return f"{self.first_name} {self.last_name}"
 
-    def data_player(self):
-        """Returns player information in dictionary form.
+    @staticmethod
+    def save_data_players(filename="data_players.json"):
+        """Save all player data to a JSON file.
 
-        Returns:
-            dict: Contains the following information:
-            - "last_name" (str): Player's name.
-            - “first name” (str): Player's first name.
-            - "birthdate" (str): Player's birthdate.
-            - “national_chess_identifier” (int): Player's national_chess_identifier.
-        """
-        data_player = {
-            "last_name": self.last_name,
-            "first_name": self.first_name,
-            "birthdate": self.birthdate,
-            "national_chess_identifier": self.national_chess_identifier,
-        }
-        return data_player
-
-    def add_a_new_player(self, last_name, first_name, birthdate, national_chess_identifier):
-        """Adds a new player to the list of participants.
-
-        Agrs :
-            last_name (str): Player's last name.
-            first name (str): Player's first name.
-            birthdate (str): Player's birthdate (format 'YYYY-MM-DD').
-            national_chess_identifier (int): Player's national_chess_identifier
-
-        Retunrs :
-            Player: An instance of the player added.
-        """
-        pass
-
-    def save_data_player(self):
-        """Saves player data in a json file.
+        Args:
+            filename (str, optional): Name of the JSON file. Defaults to "data_players.json".
 
         Returns:
             bool:
-                - `True` if the data has been saved successfully.
-                - False` if backup failed.
+                - `True` if the data was saved successfully.
+                - `False` if the save operation failed.
 
         Raises:
-            IOError: If an error occurs while writing data.
+            IOError: If an error occurs while writing to the file.ta.
         """
         # file path to data_player.json
-        file_path = os.path.join(os.getcwd(), "data_player.json")
+        file_path = os.path.join(os.getcwd(), filename)
 
-        if os.path.exists(file_path):
-            with open(file_path, "r", encoding="utf-8") as file:
-                try:
-                    players_data = json.load(file)  # Load existing data
-                except json.JSONDecodeError:
-                    players_data = {}  # If the file is empty or corrupted
-        else:
-            players_data = {}
+        try:
+            # Write updated data to file
+            with open(file_path, "w", encoding="utf-8") as file:
+                json.dump([player.__dict__ for player in Player.all_players], file)
+                return True
+        except IOError as e:
+            print(f"Error saving data: {e}")
+            return False
 
-        # Find the next unique identifier (player_1, player_2, ...)
-        next_id = "player_{}".format(len(players_data) + 1)
+    @staticmethod
+    def load_from_file(filename="players.json"):
+        """
+        Loads players from a JSON file and repopulates the player list.
 
-        # Add the player under his unique identifier
-        players_data[next_id] = self.data_player()
+        Args:
+            filename (str, optional): The file name to load players from. Defaults to "players.json".
+        """
+        if os.path.exists(filename):
+            with open(filename, "r", encoding="utf-8") as file:
+                data = json.load(file)
+            Player.all_players = []
+            for player_data in data:
+                player = Player(
+                    player_data["last_name"],
+                    player_data["first_name"],
+                    player_data["birthdate"],
+                    player_data["national_chess_identifier"],
+                    player_data["score"],
+                )
+                player.id = player_data["id"]
+                Player.all_players.append(player)
 
-        # Write updated data to file
-        with open(file_path, "w", encoding="utf-8") as file:
-            json.dump(players_data, file, indent=4, ensure_ascii=False)
-
-    def get_player_data(self, last_name):
+    @staticmethod
+    def get_player_data(player_id):
         """Searches for and returns player information based on registration ID
         Args:
            registration_ID (str): registration ID of searched player.
@@ -92,34 +87,31 @@ class Player:
         Returns:
             dict or None:
                 - A dictionary containing the player's information if found:
+                    -"id" (int) :
                     - “name” (str) : Name of the player.
                     - “prenom” (str) : Player's first name.
                     - “date_naissance” (str): Player's date of birth.
-                    - “id_echecs” (int): Player's unique identifier.
+                    - “national_chess_identifier” (int): Player's unique identifier.
                     - “score” (int): Player's current score.
                 - `None` if no player matches the name provided.
 
         Raises:
             ValueError: If the name is empty or invalid."""
-        """file path to data_player.json"""
-        file_path = os.path.join(os.getcwd(), "data_player.json")
+        for player in Player.all_players:
+            if player.id == player_id:
+                return {
+                    "id": player.id,
+                    "last_name": player.last_name,
+                    "first_name": player.first_name,
+                    "birthdate": player.birthdate,
+                    "national_chess_identifier": player.national_chess_identifier,
+                    "score": player.score,
+                }
 
-        # Load JSON file
-        with open(file_path, "r") as file:
-            data = json.load(file)
-
-        # Checking and displaying information
-        for key, player_info in data.items():
-            if player_info.get("last_name") == last_name:
-                return player_info
-
-        return "No players found with this last name (Please capitalize the last name)"
+        return ValueError("No players found with this id")
 
 
 if __name__ == "__main__":
-    player1 = Player("Dupond", "Georges", "1974-08-14", "AA12345")
-    name = player1.full_name_player()
-    data = player1.save_data_player()
-    show_player = player1.get_player_data("Dupond")
-    print(name)
-    print(show_player)
+    Player.load_from_file("data_players.json")
+    show_player = Player.get_player_data(2)
+    print(str(show_player))
