@@ -20,3 +20,6 @@ class RoundController:
             list[Match]: List of Match objects corresponding to matches in the round.
         """
         pass
+
+    def sort_players_score(self):
+        pass

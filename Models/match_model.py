@@ -3,12 +3,12 @@ class Match:
         """Initializes a match between two players.
 
         Args:
-            player1 (Player): First player of the match.
-            player2 (Player): Second player in the match.
+            player_1 (Player): First player of the match.
+            player_2 (Player): Second player in the match.
 
         Attributes:
-            player1 (Player): Player playing with white pieces.
-            player2 (Player): Player playing with black pieces.
+            player_1 (Player): Player playing with white pieces.
+            player_2 (Player): Player playing with black pieces.
             score_player1 (float): Player 1's score (initialized to 0).
             score_player2 (float): Player 2's score (initialized to 0).
         """
@@ -19,6 +19,7 @@ class Match:
 
     @property
     def finished(self):
+        """Checks if the match is finished."""
         sum_scores = 0
         for _, score in self.scores.items():
             sum_scores += score
