@@ -1,71 +1,111 @@
+import json
+import os
+
+
 class Tournament:
-    def __init__(self, name_tournament, location, start_date, end_date, nomber_rounds, description):
+    counter = 0
+    all_tournaments = []
+
+    def __init__(self, name_tournament, location, start_date, end_date, number_rounds, description):
         """initalizing a tournament"""
+        Tournament.counter += 1
+        self.id = Tournament.counter
+
         self.name_tournament = name_tournament
         self.location = location
         self.start_date = start_date
         self.end_date = end_date
-        self.nomber_rounds = nomber_rounds
+        self.number_rounds = number_rounds
+        self.rounds = []
         self.description = description
 
-    def update_of_participating_players(self, player):
-        """
-        Adds or updates a player in the tournament participants list.
+        # add tournaments to the list of tournament
+        Tournament.all_tournaments.append(self)
+
+    @staticmethod
+    def save_data_tournament(filename="data_tournament.json"):
+        """Save tournament data to a JSON file.
 
         Args:
-            player (Player): An instance of the Player class representing the player to be added.
-        """
-        pass
-
-    def mix_player(self):
-        """
-        Randomly shuffles the list of players to avoid any bias in pair formation.
-        """
-        pass
-
-    def create_pairs_round_1(self):
-        """
-        Generates player pairs for the first round according to random order.
+            filename (str, optional): Name of the JSON file. Defaults to "data_tournament.json".
 
         Returns:
-            list[tuple]: A list of tuples containing the player pairs.
-        """
-        pass
+            bool:
+                - `True` if the data was saved successfully.
+                - `False` if the save operation failed.
 
-    def creation_pairs_other_rounds(self):
+        Raises:
+            IOError: If an error occurs while writing to the file.ta.
         """
-        Generates player pairs for subsequent rounds based on scores.
+        # file path to data_tournament.json
+        file_path = os.path.join(os.getcwd(), filename)
 
-        Returns:
-            list[tuple]: A list of tuples representing player pairs.
-        """
-        pass
+        try:
+            # Write updated data to file
+            with open(file_path, "w", encoding="utf-8") as file:
+                json.dump(
+                    [tournament.__dict__ for tournament in Tournament.all_tournaments], file, indent=4, sort_keys=True
+                )
+                return True
+        except IOError as e:
+            print(f"Error saving data: {e}")
+            return False
 
-    def draw_white_black(self, player1, player2):
+    @staticmethod
+    def load_from_file(filename="data_tournament.json"):
         """
-        Randomly determines which player will play with the white or black pieces.
+        Loads tournaments from a JSON file and repopulates the tournaments list.
 
         Args:
-            player1 (Player): First player of the pair.
-            player2 (Player): Second player of the pair.
+            filename (str, optional): The file name to load tournaments from. Defaults to "data_tournament.json".
+        """
+        if os.path.exists(filename):
+            with open(filename, "r", encoding="utf-8") as file:
+                data = json.load(file)
+            Tournament.all_tournaments = []
+            for tournament_data in data:
+                tournament = Tournament(
+                    tournament_data["name_tournament"],
+                    tournament_data["location"],
+                    tournament_data["start_date"],
+                    tournament_data["end_date"],
+                    tournament_data["number_rounds"],
+                    tournament_data["description"],
+                    tournament_data["rounds"],
+                )
+                tournament.id = tournament_data["id"]
+
+    @staticmethod
+    def get_tournament_data(tournament_id):
+        """Searches for and returns tournament information based on registration ID
+        Args:
+           registration_ID (str): registration ID of searched tournament.
 
         Returns:
-            tuple: (Player, Player) where the first element is the player with the white pieces.
-        """
-        pass
+            dict or None:
+                - A dictionary containing the tournament's information if found:
+                    -"id" (int) :
+                    - "name_tournament" (str): Name of the tournament.
+                    - "location" (str): Tournament location.
+                    - "start_date" (int): Tournament start date.
+                    - "end_date" (int): Tournament end date.
+                    - "number_rounds" (int): Number of rounds of the tournament.
+                    - "description" (str): Tournament description.
+                    - "list_rounds" (list): Tournament round lists.
+                - `None` if no tournament matches the name provided.
 
-    def update_score(self, player, points):
-        """
-        Updates the player's score after a match.
-        Gives the results of the match: the winner receives 1 point, the loser receives 0 points,
-        in the event of a draw each receives 0.5 points.
+        Raises:
+            ValueError: If the name is empty or invalid."""
+        for tournament in Tournament.all_tournaments:
+            if tournament.id == tournament_id:
+                return {
+                    "name_tournament": tournament.name_tournament,
+                    "location": tournament.location,
+                    "start_date": tournament.start_date,
+                    "end_date": tournament.end_date,
+                    "number_rounds": tournament.number_rounds,
+                    "rounds": [],
+                    "description": tournament.description,
+                }
 
-        Args:
-            player (Player): The player whose score is to be updated.
-            points (float): Number of points obtained (1 for a win, 0.5 for a draw, 0 for a loss).
-
-        Results: “1” if player1 wins,
-                 “2” if player2 wins,
-                 “draw” for a tie
-        """
-        pass
+        raise ValueError("No tournament found with this id")

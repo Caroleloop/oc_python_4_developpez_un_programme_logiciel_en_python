@@ -20,13 +20,13 @@ class Player:
         # add player to the list of players
         Player.all_players.append(self)
 
-    def full_name_player(self):
+    def __str__(self):
         """Returns the player's full name as 'Last Name First Name'.
 
         Returns:
             str: Player's full name.
         """
-        return f"{self.first_name} {self.last_name}"
+        return self.first_name + " " + self.last_name
 
     @staticmethod
     def save_data_players(filename="data_players.json"):
@@ -49,19 +49,19 @@ class Player:
         try:
             # Write updated data to file
             with open(file_path, "w", encoding="utf-8") as file:
-                json.dump([player.__dict__ for player in Player.all_players], file)
+                json.dump([player.__dict__ for player in Player.all_players], file, indent=4, sort_keys=True)
                 return True
         except IOError as e:
             print(f"Error saving data: {e}")
             return False
 
     @staticmethod
-    def load_from_file(filename="players.json"):
+    def load_from_file(filename="data_players.json"):
         """
         Loads players from a JSON file and repopulates the player list.
 
         Args:
-            filename (str, optional): The file name to load players from. Defaults to "players.json".
+            filename (str, optional): The file name to load players from. Defaults to "data_players.json".
         """
         if os.path.exists(filename):
             with open(filename, "r", encoding="utf-8") as file:
@@ -76,7 +76,6 @@ class Player:
                     player_data["score"],
                 )
                 player.id = player_data["id"]
-                Player.all_players.append(player)
 
     @staticmethod
     def get_player_data(player_id):
@@ -108,10 +107,16 @@ class Player:
                     "score": player.score,
                 }
 
-        return ValueError("No players found with this id")
+        raise ValueError("No players found with this id")
 
 
 if __name__ == "__main__":
+    Player("Carlsen", "Magnus", "1990-11-30", "NOR12345")
+    Player("Nakamura", "Hikaru", "1987-12-09", "USA67890")
+    Player("Firouzja", "Alireza", "2003-06-18", "FRA54321")
+    Player("Ding", "Liren", "1992-10-24", "CHN98765")
+    Player("Gukesh", "Dommaraju", "2006-05-29", "IND24680")
+    Player.save_data_players()
     Player.load_from_file("data_players.json")
     show_player = Player.get_player_data(2)
     print(str(show_player))

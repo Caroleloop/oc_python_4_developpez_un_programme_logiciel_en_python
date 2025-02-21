@@ -15,3 +15,20 @@ class Match:
         self.player_1 = player_1
         self.player_2 = player_2
         self.scores = {player_1: 0, player_2: 0}
+        self.round
+
+    @property
+    def finished(self):
+        sum_scores = 0
+        for _, score in self.scores.items():
+            sum_scores += score
+
+        if sum_scores == 0:
+            return False
+
+        return True
+
+
+if __name__ == "__main__":
+    my_match = Match("p1", "p2")
+    print(my_match.finished)
