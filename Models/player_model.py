@@ -63,9 +63,12 @@ class Player:
         Args:
             filename (str, optional): The file name to load players from. Defaults to "data_players.json".
         """
+        filename = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", filename))
+
         if os.path.exists(filename):
             with open(filename, "r", encoding="utf-8") as file:
                 data = json.load(file)
+
             Player.all_players = []
             for player_data in data:
                 player = Player(
@@ -76,6 +79,11 @@ class Player:
                     player_data["score"],
                 )
                 player.id = player_data["id"]
+
+            return Player.all_players
+        else:
+            print(f"Le fichier {filename} n'existe pas.")
+            return []
 
     @staticmethod
     def get_player_data(player_id):
