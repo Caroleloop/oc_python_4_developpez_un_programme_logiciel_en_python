@@ -1,5 +1,5 @@
 class RoundController:
-    def create_round(self, name_round, start_time):
+    def create_round(self, name_round, start_time, end_time):
         """
         Creates a new round and initializes its matches.
 
@@ -7,7 +7,8 @@ class RoundController:
             name (str): round name (e.g. "Round 1”).
             start_date_time (str): Round start date and time (format 'YYYY-MM-DD HH:MM').
         """
-        pass
+        round_data = {"name": name_round, "start_time": start_time, "end_time": end_time, "matches": []}
+        return round_data
 
     def create_liste_match(self, pairs):
         """

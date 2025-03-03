@@ -1,4 +1,44 @@
+import random
+from views.tournament_view import TournamentView
+
+
 class TournamentController:
+    def __init__(self):
+        self.view = TournamentView()
+
+    def tournament_management(self):
+        while True:
+            choix = self.view.display_tournament_menu()
+            if choix == "1":
+                self.tournament_list()
+            elif choix == "2":
+                self.create_tournament()
+            elif choix == "3":
+                self.manage_tournament()
+            elif choix == "4":
+                self.modify_tournament()
+            elif choix == "5":
+                self.delete_tournament()
+            elif choix == "6":
+                break
+            else:
+                print("Choix invalide.")
+
+    def tournament_list(self):
+        print("Affichage de la liste des tournois... (à implémenter)")
+
+    def create_tournament(self):
+        print("Création d’un tournoi... (à implémenter)")
+
+    def manage_tournament(self):
+        print("Gestion du tournoi... (à implémenter)")
+
+    def modify_tournament(self):
+        print("Modification d’un tournoi... (à implémenter)")
+
+    def delete_tournament(self):
+        print("Suppression d’un tournoi... (à implémenter)")
+
     def update_of_participating_players(self, player):
         """
         Adds or updates a player in the tournament participants list.
@@ -8,11 +48,13 @@ class TournamentController:
         """
         pass
 
-    def mix_player(self):
+    def shuffle_player(self):
         """
         Randomly shuffles the list of players to avoid any bias in pair formation.
         """
-        pass
+        if len(self.players_list) > 1:
+            random.shuffle(self.players_list)
+        return self.players_list
 
     def create_pairs_round_1(self):
         """

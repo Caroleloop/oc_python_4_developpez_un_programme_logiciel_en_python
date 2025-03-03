@@ -1,5 +1,6 @@
 import json
 import os
+import re
 
 
 class Player:
@@ -8,9 +9,10 @@ class Player:
 
     def __init__(self, last_name, first_name, birthdate, national_chess_identifier, score: int = 0):
         """Initializes player data"""
+        if not re.match(r"\d{4}-\d{2}-\d{2}", birthdate):
+            raise ValueError("Invalid birthdate format. Use YYYY-MM-DD.")
         Player.counter += 1
         self.id = Player.counter
-
         self.last_name = last_name
         self.first_name = first_name
         self.birthdate = birthdate
@@ -64,8 +66,10 @@ class Player:
             filename (str, optional): The file name to load players from. Defaults to "data_players.json".
         """
         filename = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", filename))
-
-        if os.path.exists(filename):
+        if not os.path.exists(filename):
+            print("No data file found. Returning an empty list.")
+            return []
+        try:
             with open(filename, "r", encoding="utf-8") as file:
                 data = json.load(file)
 
@@ -81,8 +85,8 @@ class Player:
                 player.id = player_data["id"]
 
             return Player.all_players
-        else:
-            print(f"Le fichier {filename} n'existe pas.")
+        except (json.JSONDecodeError, KeyError) as e:
+            print(f"Error loading player data: {e}")
             return []
 
     @staticmethod
@@ -104,6 +108,9 @@ class Player:
 
         Raises:
             ValueError: If the name is empty or invalid."""
+        if not isinstance(player_id, int):
+            raise ValueError("Player ID must be an integer.")
+
         for player in Player.all_players:
             if player.id == player_id:
                 return {
