@@ -18,6 +18,7 @@ class Tournament:
         self.number_rounds = number_rounds
         self.rounds = []
         self.description = description
+        self.players = []
 
         # add tournaments to the list of tournament
         Tournament.all_tournaments.append(self)
@@ -71,8 +72,9 @@ class Tournament:
                     tournament_data["end_date"],
                     tournament_data["number_rounds"],
                     tournament_data["description"],
-                    tournament_data["rounds"],
                 )
+                tournament.players = tournament_data.get("rounds", [])
+                tournament.players = tournament_data.get("players", [])
                 tournament.id = tournament_data["id"]
 
     @staticmethod
@@ -106,6 +108,7 @@ class Tournament:
                     "number_rounds": tournament.number_rounds,
                     "rounds": [],
                     "description": tournament.description,
+                    "players": [],
                 }
 
         raise ValueError("No tournament found with this id")

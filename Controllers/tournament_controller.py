@@ -1,57 +1,187 @@
 import random
+import datetime
 from views.tournament_view import TournamentView
+from models.tournament_model import Tournament
+from models.player_model import Player
+from views.menu_view import MenuView
 
 
 class TournamentController:
     def __init__(self):
         self.view = TournamentView()
+        self.model = Tournament()
+        self.player_model = Player()
+        self.menu_view = MenuView()
 
     def tournament_management(self):
         while True:
             choix = self.view.display_tournament_menu()
             if choix == "1":
-                self.tournament_list()
-            elif choix == "2":
                 self.create_tournament()
-            elif choix == "3":
+            elif choix == "2":
                 self.manage_tournament()
-            elif choix == "4":
+            elif choix == "3":
                 self.modify_tournament()
-            elif choix == "5":
+            elif choix == "4":
                 self.delete_tournament()
-            elif choix == "6":
+            elif choix == "5":
                 break
             else:
                 print("Choix invalide.")
 
-    def tournament_list(self):
-        print("Affichage de la liste des tournois... (à implémenter)")
-
     def create_tournament(self):
-        print("Création d’un tournoi... (à implémenter)")
+        """Création d’un tournoi"""
+        name_tournament = self.menu_view.get_input(" Tournament name: ")
+        location = self.menu_view.get_input("Tournament location: ")
+        start_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        end_date = self.tournament_end_date()
+        number_rounds = self.menu_view.get_input("Number of tournament rounds: ")
+        rounds = []
+        description = self.menu_view.get_input("Tournament description: ")
+        players = []
 
-    def manage_tournament(self):
-        print("Gestion du tournoi... (à implémenter)")
+        new_tournamùent = Tournament(
+            name_tournament, location, start_date, end_date, number_rounds, description, rounds, players
+        )
+        new_tournamùent.save_data_tournament()
+
+    def add_players_to_the_tournament(self):
+        """Add players to a given tournament based on their IDs"""
+        # Load player and tournament data
+        players_data = Player.load_from_file()
+        tournament_data = Tournament.load_from_file()
+
+        # Request tournament ID
+        tournament_id = self.menu_view.get_input("Enter tournament ID to add players: ").strip()
+        tournament = next((t for t in tournament_data if t["id"] == tournament_id), None)
+
+        if not tournament:
+            self.menu_view.display_message("Tournament not found.")
+            return
+
+        self.menu_view.display_message(
+            f"Add players to tournament {tournament['name_tournament']} (ID: {tournament_id})."
+        )
+        self.menu_view.display_message("Enter the IDs of the players to be added (type 'fin' to finish).")
+
+        while True:
+            player_id = self.menu_view.get_input("Player ID to be added: ").strip()
+
+            if player_id.lower() == "fin":
+                break  # Exits the loop if the user types “end”.
+
+            # Check if the player exists
+            player = next((p for p in players_data if p["id"] == player_id), None)
+
+            if not player:
+                self.menu_view.display_message(f"Player with ID {player_id} not found.")
+                continue
+
+            # Check if the player is already registered
+            if any(p["id"] == player_id for p in tournament["players"]):
+                self.menu_view.display_message(f"Player {player_id} is already registered in this tournament.")
+                continue
+
+            # Add player to tournament
+            tournament["players"].append(player)
+            self.menu_view.display_message(f"Player ID: {player_id} added successfully.")
+
+        # Sauvegarder les modifications dans data_tournaments.json
+        Tournament.save_data()
+        self.menu_view.display_message("All players have been added to the tournament.")
+
+    def tournament_end_date(self):
+        """tournament end date"""
+        end_tournament = self.menu_view.get_input("Is the tournament finished? (y/n): ").strip().lower()
+        if end_tournament == "y":
+            end_date = self.end_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+            return end_date
 
     def modify_tournament(self):
-        print("Modification d’un tournoi... (à implémenter)")
+        """Allows the user to modify the information of an existing tournament by entering its ID.
+        If the user leaves a field empty, the old value is retained."""
+        tournament_id = self.menu_view.get_input("Enter the ID of the tournament to modify: ")
+        tournament = Tournament.load_from_file()  # Load existing players
+
+        # Find the tournament to modify
+        tournament_to_modify = next((t for t in tournament if t["id"] == tournament_id), None)
+
+        if not tournament_to_modify:
+            self.menu_view.display_message("Tournament not found.")
+            return
+
+        # Display current information
+        self.menu_view.display_message(
+            f"Modifying tournament: {tournament_to_modify.name_tournament} {tournament_to_modify.location}"
+            f"{tournament_to_modify.start_date} {tournament_to_modify.number_rounds}"
+            f"{tournament_to_modify.description}"
+        )
+        self.menu_view.display_message("Leave blank to keep the current value.")
+
+        # Request new information
+        new_name_tournament = self.menu_view.get_input(
+            f"New name tournament ({tournament_to_modify.last_name}): "
+        ).strip()
+        new_location = self.menu_view.get_input(f"New location ({tournament_to_modify.location}): ").strip()
+        new_start_date = self.menu_view.get_input(
+            f"New bistart_daterthdate ({tournament_to_modify.start_date}): "
+        ).strip()
+        new_number_rounds = self.menu_view.get_input(
+            f"New number rounds ({tournament_to_modify.number_rounds}): "
+        ).strip()
+        new_description = self.menu_view.get_input(f"New description ({tournament_to_modify.description}): ").strip()
+
+        # Update information if a new value is provided
+        if new_name_tournament:
+            tournament_to_modify.name_tournament = new_name_tournament
+        if new_location:
+            tournament_to_modify.location = new_location
+        if new_start_date:
+            tournament_to_modify.start_date = new_start_date
+        if new_number_rounds:
+            tournament_to_modify.number_rounds = new_number_rounds
+        if new_description:
+            tournament_to_modify.description = new_description
+
+        # Save modifications
+        Tournament.save_data_tournament(tournament)
+        self.menu_view.display_message("Tournament successfully updated.")
 
     def delete_tournament(self):
-        print("Suppression d’un tournoi... (à implémenter)")
+        """Deleting a tournament with id"""
+        tournament_id = self.menu_view.get_input("Enter the ID of the tournament to be deleted: ")
+        tournament = Tournament.load_from_file()  # Load tournament before modification
 
-    def update_of_participating_players(self, player):
-        """
-        Adds or updates a player in the tournament participants list.
+        # Check if the tournament exists
+        tournament_to_delete = next((t for t in tournament if t["id"] == tournament_id), None)
 
-        Args:
-            player (Player): An instance of the Player class representing the player to be added.
-        """
+        if not tournament_to_delete:
+            self.menu_view.display_message("Tournament not found.")
+            return
+
+        # Request confirmation
+        confirmation = (
+            self.menu_view.get_input(
+                f"Are you sure you want to delete the tournament with the ID {tournament_id}? (y/n): "
+            )
+            .strip()
+            .lower()
+        )
+
+        if confirmation == "y":
+            tournament = [t for t in tournament if t["id"] != tournament_id]  # Delete tournament
+            Tournament.save_data_tournament(tournament)  # Save new list
+            self.menu_view.display_message("Tournament successfully deleted.")
+        else:
+            self.menu_view.display_message("Deletion cancelled.")
         pass
 
     def shuffle_player(self):
         """
         Randomly shuffles the list of players to avoid any bias in pair formation.
         """
+        tournament_data = Tournament.load_from_file()
+        self.players_list = tournament_data.get("players", [])
         if len(self.players_list) > 1:
             random.shuffle(self.players_list)
         return self.players_list
@@ -63,7 +193,9 @@ class TournamentController:
         Returns:
             list[tuple]: A list of tuples containing the player pairs.
         """
-        pass
+        self.shuffle_player()
+        pairs = [(self.players_list[i], self.players_list[i + 1]) for i in range(0, len(self.players_list), 2)]
+        return pairs
 
     def creation_pairs_other_rounds(self):
         """
@@ -72,9 +204,14 @@ class TournamentController:
         Returns:
             list[tuple]: A list of tuples representing player pairs.
         """
-        pass
+        sorted_players_by_score = sorted(self.players_list, key=lambda x: x.score, reverse=True)
+        pairs = [
+            (sorted_players_by_score[i], sorted_players_by_score[i + 1])
+            for i in range(0, len(sorted_players_by_score), 2)
+        ]
+        return pairs
 
-    def draw_white_black(self, player1, player2):
+    def draw_white_black(self, pairs):
         """
         Randomly determines which player will play with the white or black pieces.
 
@@ -83,9 +220,16 @@ class TournamentController:
             player2 (Player): Second player of the pair.
 
         Returns:
-            tuple: (Player, Player) where the first element is the player with the white pieces.
+         tuple: (Player, Player) where the first element is the player who plays in white
+         and the second element is the player who plays in black.
         """
-        pass
+        assigned_pairs = []
+        for player1, player2 in pairs:
+            if random.choice([True, False]):
+                assigned_pairs.append((player1, player2))  # player1 gets white, player2 gets black
+            else:
+                assigned_pairs.append((player2, player1))  # player2 gets white, player1 gets black
+        return assigned_pairs
 
     def update_score(self, player, points):
         """

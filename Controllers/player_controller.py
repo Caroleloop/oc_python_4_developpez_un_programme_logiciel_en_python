@@ -1,11 +1,13 @@
 import sys
 import os
 import re
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from models.player_model import Player
 from views.player_view import PlayerView
 from views.menu_view import MenuView
+
 
 class PlayerController:
     def __init__(self):
@@ -46,11 +48,11 @@ class PlayerController:
     def modify_player(self):
         """Allows the user to modify the information of an existing player by entering his ID.
         If the user leaves a field empty, the old value is retained."""
-        player_id =  self.menu_view.get_input("Enter the ID of the player to modify: ")
+        player_id = self.menu_view.get_input("Enter the ID of the player to modify: ")
         players = self.load_player_data()  # Load existing players
 
         # Find the player to modify
-        player_to_modify = next((p for p in players if p.id == player_id), None)
+        player_to_modify = next((p for p in players if p["id"] == player_id), None)
 
         if not player_to_modify:
             self.menu_view.display_message("Player not found.")
@@ -58,8 +60,8 @@ class PlayerController:
 
         # Display current information
         self.menu_view.display_message(
-            f"Modifying player: {player_to_modify.last_name} {player_to_modify.first_name} 
-            {player_to_modify.birthdate} {player_to_modify.national_chess_identifier}"
+            f"Modifying player: {player_to_modify['last_name']} {player_to_modify['first_name']} "
+            f"{player_to_modify['birthdate']} {player_to_modify['national_chess_identifier']}"
         )
         self.menu_view.display_message("Leave blank to keep the current value.")
 
@@ -91,7 +93,7 @@ class PlayerController:
         players = Player.load_player_data()  # Load players before modification
 
         # Check if the player exists
-        player_to_delete = next((p for p in players if p.id == player_id), None)
+        player_to_delete = next((p for p in players if p["id"] == player_id), None)
 
         if not player_to_delete:
             self.menu_view.display_message("Player not found.")
@@ -107,7 +109,7 @@ class PlayerController:
         )
 
         if confirmation == "y":
-            players = [p for p in players if p.id != player_id]  # Delete player
+            players = [p for p in players if p["id"] != player_id]  # Delete player
             Player.save_players(players)  # Save new list
             self.menu_view.display_message("Player successfully deleted.")
         else:
