@@ -3,15 +3,14 @@ import datetime
 from views.tournament_view import TournamentView
 from models.tournament_model import Tournament
 from models.player_model import Player
-from views.menu_view import MenuView
+from views.utile import get_input, display_message
 
 
 class TournamentController:
     def __init__(self):
         self.view = TournamentView()
-        self.model = Tournament()
-        self.player_model = Player()
-        self.menu_view = MenuView()
+        self.model = Tournament
+        self.player_model = Player
 
     def tournament_management(self):
         while True:
@@ -31,13 +30,13 @@ class TournamentController:
 
     def create_tournament(self):
         """Création d’un tournoi"""
-        name_tournament = self.menu_view.get_input(" Tournament name: ")
-        location = self.menu_view.get_input("Tournament location: ")
+        name_tournament = get_input(" Tournament name: ")
+        location = get_input("Tournament location: ")
         start_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
         end_date = self.tournament_end_date()
-        number_rounds = self.menu_view.get_input("Number of tournament rounds: ")
+        number_rounds = get_input("Number of tournament rounds: ")
         rounds = []
-        description = self.menu_view.get_input("Tournament description: ")
+        description = get_input("Tournament description: ")
         players = []
 
         new_tournamùent = Tournament(
@@ -52,20 +51,18 @@ class TournamentController:
         tournament_data = Tournament.load_from_file()
 
         # Request tournament ID
-        tournament_id = self.menu_view.get_input("Enter tournament ID to add players: ").strip()
+        tournament_id = get_input("Enter tournament ID to add players: ").strip()
         tournament = next((t for t in tournament_data if t["id"] == tournament_id), None)
 
         if not tournament:
-            self.menu_view.display_message("Tournament not found.")
+            display_message("Tournament not found.")
             return
 
-        self.menu_view.display_message(
-            f"Add players to tournament {tournament['name_tournament']} (ID: {tournament_id})."
-        )
-        self.menu_view.display_message("Enter the IDs of the players to be added (type 'fin' to finish).")
+        display_message(f"Add players to tournament {tournament['name_tournament']} (ID: {tournament_id}).")
+        display_message("Enter the IDs of the players to be added (type 'fin' to finish).")
 
         while True:
-            player_id = self.menu_view.get_input("Player ID to be added: ").strip()
+            player_id = get_input("Player ID to be added: ").strip()
 
             if player_id.lower() == "fin":
                 break  # Exits the loop if the user types “end”.
@@ -74,25 +71,25 @@ class TournamentController:
             player = next((p for p in players_data if p["id"] == player_id), None)
 
             if not player:
-                self.menu_view.display_message(f"Player with ID {player_id} not found.")
+                display_message(f"Player with ID {player_id} not found.")
                 continue
 
             # Check if the player is already registered
             if any(p["id"] == player_id for p in tournament["players"]):
-                self.menu_view.display_message(f"Player {player_id} is already registered in this tournament.")
+                display_message(f"Player {player_id} is already registered in this tournament.")
                 continue
 
             # Add player to tournament
             tournament["players"].append(player)
-            self.menu_view.display_message(f"Player ID: {player_id} added successfully.")
+            display_message(f"Player ID: {player_id} added successfully.")
 
         # Sauvegarder les modifications dans data_tournaments.json
         Tournament.save_data()
-        self.menu_view.display_message("All players have been added to the tournament.")
+        display_message("All players have been added to the tournament.")
 
     def tournament_end_date(self):
         """tournament end date"""
-        end_tournament = self.menu_view.get_input("Is the tournament finished? (y/n): ").strip().lower()
+        end_tournament = get_input("Is the tournament finished? (y/n): ").strip().lower()
         if end_tournament == "y":
             end_date = self.end_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
             return end_date
@@ -100,36 +97,30 @@ class TournamentController:
     def modify_tournament(self):
         """Allows the user to modify the information of an existing tournament by entering its ID.
         If the user leaves a field empty, the old value is retained."""
-        tournament_id = self.menu_view.get_input("Enter the ID of the tournament to modify: ")
+        tournament_id = get_input("Enter the ID of the tournament to modify: ")
         tournament = Tournament.load_from_file()  # Load existing players
 
         # Find the tournament to modify
         tournament_to_modify = next((t for t in tournament if t["id"] == tournament_id), None)
 
         if not tournament_to_modify:
-            self.menu_view.display_message("Tournament not found.")
+            display_message("Tournament not found.")
             return
 
         # Display current information
-        self.menu_view.display_message(
+        display_message(
             f"Modifying tournament: {tournament_to_modify.name_tournament} {tournament_to_modify.location}"
             f"{tournament_to_modify.start_date} {tournament_to_modify.number_rounds}"
             f"{tournament_to_modify.description}"
         )
-        self.menu_view.display_message("Leave blank to keep the current value.")
+        display_message("Leave blank to keep the current value.")
 
         # Request new information
-        new_name_tournament = self.menu_view.get_input(
-            f"New name tournament ({tournament_to_modify.last_name}): "
-        ).strip()
-        new_location = self.menu_view.get_input(f"New location ({tournament_to_modify.location}): ").strip()
-        new_start_date = self.menu_view.get_input(
-            f"New bistart_daterthdate ({tournament_to_modify.start_date}): "
-        ).strip()
-        new_number_rounds = self.menu_view.get_input(
-            f"New number rounds ({tournament_to_modify.number_rounds}): "
-        ).strip()
-        new_description = self.menu_view.get_input(f"New description ({tournament_to_modify.description}): ").strip()
+        new_name_tournament = get_input(f"New name tournament ({tournament_to_modify.last_name}): ").strip()
+        new_location = get_input(f"New location ({tournament_to_modify.location}): ").strip()
+        new_start_date = get_input(f"New bistart_daterthdate ({tournament_to_modify.start_date}): ").strip()
+        new_number_rounds = get_input(f"New number rounds ({tournament_to_modify.number_rounds}): ").strip()
+        new_description = get_input(f"New description ({tournament_to_modify.description}): ").strip()
 
         # Update information if a new value is provided
         if new_name_tournament:
@@ -145,25 +136,23 @@ class TournamentController:
 
         # Save modifications
         Tournament.save_data_tournament(tournament)
-        self.menu_view.display_message("Tournament successfully updated.")
+        display_message("Tournament successfully updated.")
 
     def delete_tournament(self):
         """Deleting a tournament with id"""
-        tournament_id = self.menu_view.get_input("Enter the ID of the tournament to be deleted: ")
+        tournament_id = get_input("Enter the ID of the tournament to be deleted: ")
         tournament = Tournament.load_from_file()  # Load tournament before modification
 
         # Check if the tournament exists
         tournament_to_delete = next((t for t in tournament if t["id"] == tournament_id), None)
 
         if not tournament_to_delete:
-            self.menu_view.display_message("Tournament not found.")
+            display_message("Tournament not found.")
             return
 
         # Request confirmation
         confirmation = (
-            self.menu_view.get_input(
-                f"Are you sure you want to delete the tournament with the ID {tournament_id}? (y/n): "
-            )
+            get_input(f"Are you sure you want to delete the tournament with the ID {tournament_id}? (y/n): ")
             .strip()
             .lower()
         )
@@ -171,9 +160,9 @@ class TournamentController:
         if confirmation == "y":
             tournament = [t for t in tournament if t["id"] != tournament_id]  # Delete tournament
             Tournament.save_data_tournament(tournament)  # Save new list
-            self.menu_view.display_message("Tournament successfully deleted.")
+            display_message("Tournament successfully deleted.")
         else:
-            self.menu_view.display_message("Deletion cancelled.")
+            display_message("Deletion cancelled.")
         pass
 
     def shuffle_player(self):

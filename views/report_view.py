@@ -12,4 +12,4 @@ class ReportView:
             choice = input("Your choice: ")
             if choice in {"1", "2", "3", "4", "5", "6"}:
                 return choice
-            print("Invalid choice, please enter a number between 1 and 6.")
+            print("\nInvalid choice, please enter a number between 1 and 6.")

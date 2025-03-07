@@ -11,4 +11,4 @@ class TournamentView:
             choice = input("Your choice: ")
             if choice in {"1", "2", "3", "4", "5"}:
                 return choice
-            print("Invalid choice, please enter a number between 1 and 5.")
+            print("\nInvalid choice, please enter a number between 1 and 5.")
