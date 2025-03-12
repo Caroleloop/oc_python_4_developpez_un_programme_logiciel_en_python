@@ -6,7 +6,7 @@ class Tournament:
     counter = 0
     all_tournaments = []
 
-    def __init__(self, name_tournament, location, start_date, end_date, number_rounds, description):
+    def __init__(self, name_tournament, location, start_date, end_date=(""), number_rounds=4, description=""):
         """initalizing a tournament"""
         Tournament.counter += 1
         self.id = Tournament.counter
@@ -42,12 +42,16 @@ class Tournament:
         file_path = os.path.join(os.getcwd(), filename)
 
         try:
+            # tournaments_data = [tournament.__dict__ for tournament in Tournament.all_tournaments]
             # Write updated data to file
             with open(file_path, "w", encoding="utf-8") as file:
                 json.dump(
                     [tournament.__dict__ for tournament in Tournament.all_tournaments], file, indent=4, sort_keys=True
                 )
-                return True
+
+            # with open(file_path, "w", encoding="utf-8") as file:
+            #     json.dump(tournaments_data, file, indent=4, sort_keys=True)
+            return True
         except IOError as e:
             print(f"Error saving data: {e}")
             return False
@@ -60,22 +64,33 @@ class Tournament:
         Args:
             filename (str, optional): The file name to load tournaments from. Defaults to "data_tournament.json".
         """
-        if os.path.exists(filename):
+        filename = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", filename))
+        if not os.path.exists(filename):
+            print("No data file found. Returning an empty list.")
+            return []
+        try:
             with open(filename, "r", encoding="utf-8") as file:
                 data = json.load(file)
+
             Tournament.all_tournaments = []
+
             for tournament_data in data:
                 tournament = Tournament(
-                    tournament_data["name_tournament"],
-                    tournament_data["location"],
-                    tournament_data["start_date"],
-                    tournament_data["end_date"],
-                    tournament_data["number_rounds"],
-                    tournament_data["description"],
+                    name_tournament=tournament_data["name_tournament"],
+                    location=tournament_data["location"],
+                    start_date=tournament_data["start_date"],
+                    number_rounds=tournament_data["number_rounds"],
+                    description=tournament_data["description"],
                 )
-                tournament.players = tournament_data.get("rounds", [])
+                tournament.end_date = tournament_data.get("end_date", "0000-00-00")
+                tournament.rounds = tournament_data.get("rounds", [])
                 tournament.players = tournament_data.get("players", [])
                 tournament.id = tournament_data["id"]
+
+            return Tournament.all_tournaments
+        except (json.JSONDecodeError, KeyError) as e:
+            print(f"Error loading player data: {e}")
+            return []
 
     @staticmethod
     def get_tournament_data(tournament_id):
@@ -101,14 +116,15 @@ class Tournament:
         for tournament in Tournament.all_tournaments:
             if tournament.id == tournament_id:
                 return {
+                    "id": tournament.id,
                     "name_tournament": tournament.name_tournament,
                     "location": tournament.location,
                     "start_date": tournament.start_date,
                     "end_date": tournament.end_date,
                     "number_rounds": tournament.number_rounds,
-                    "rounds": [],
+                    "rounds": tournament.rounds,
                     "description": tournament.description,
-                    "players": [],
+                    "players": tournament.players,
                 }
 
         raise ValueError("No tournament found with this id")

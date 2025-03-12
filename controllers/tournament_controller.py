@@ -24,25 +24,37 @@ class TournamentController:
             elif choix == "4":
                 self.delete_tournament()
             elif choix == "5":
+                self.display_tournament()
+            elif choix == "6":
                 break
             else:
                 print("Choix invalide.")
 
     def create_tournament(self):
         """Création d’un tournoi"""
-        name_tournament = get_input(" Tournament name: ")
-        location = get_input("Tournament location: ")
-        start_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-        end_date = self.tournament_end_date()
-        number_rounds = get_input("Number of tournament rounds: ")
-        rounds = []
-        description = get_input("Tournament description: ")
-        players = []
+        name_tournament = get_input("\tTournament name: ").strip()
+        location = get_input("\tTournament location: ").strip()
+        start_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M").strip()
+        # number_rounds = get_input("\tNumber of tournament rounds: ")
+        while True:
+            number_rounds_input = get_input("\tNumber of tournament rounds (default: 4): ").strip()
 
-        new_tournamùent = Tournament(
-            name_tournament, location, start_date, end_date, number_rounds, description, rounds, players
-        )
-        new_tournamùent.save_data_tournament()
+            if not number_rounds_input:
+                number_rounds = 4
+                break
+
+            try:
+                number_rounds = int(number_rounds_input)
+                if number_rounds < 4:
+                    number_rounds = 4
+                break
+            except ValueError:
+                print("Please enter a valid number.")
+
+        description = get_input("\tTournament description: ").strip()
+
+        new_tournament = Tournament(name_tournament, location, start_date, "", number_rounds, description)
+        new_tournament.save_data_tournament()
 
     def add_players_to_the_tournament(self):
         """Add players to a given tournament based on their IDs"""
@@ -52,7 +64,7 @@ class TournamentController:
 
         # Request tournament ID
         tournament_id = get_input("Enter tournament ID to add players: ").strip()
-        tournament = next((t for t in tournament_data if t["id"] == tournament_id), None)
+        tournament = next((t for t in tournament_data if t.id == tournament_id), None)
 
         if not tournament:
             display_message("Tournament not found.")
@@ -68,7 +80,7 @@ class TournamentController:
                 break  # Exits the loop if the user types “end”.
 
             # Check if the player exists
-            player = next((p for p in players_data if p["id"] == player_id), None)
+            player = next((p for p in players_data if p.id == player_id), None)
 
             if not player:
                 display_message(f"Player with ID {player_id} not found.")
@@ -98,10 +110,11 @@ class TournamentController:
         """Allows the user to modify the information of an existing tournament by entering its ID.
         If the user leaves a field empty, the old value is retained."""
         tournament_id = get_input("Enter the ID of the tournament to modify: ")
+        tournament_id = int(tournament_id)
         tournament = Tournament.load_from_file()  # Load existing players
 
         # Find the tournament to modify
-        tournament_to_modify = next((t for t in tournament if t["id"] == tournament_id), None)
+        tournament_to_modify = next((t for t in tournament if t.id == tournament_id), None)
 
         if not tournament_to_modify:
             display_message("Tournament not found.")
@@ -109,16 +122,18 @@ class TournamentController:
 
         # Display current information
         display_message(
-            f"Modifying tournament: {tournament_to_modify.name_tournament} {tournament_to_modify.location}"
-            f"{tournament_to_modify.start_date} {tournament_to_modify.number_rounds}"
-            f"{tournament_to_modify.description}"
+            f"\nModifying tournament:\n\t "
+            f"{tournament_to_modify.name_tournament}\n\t"
+            f"{tournament_to_modify.location}\n\t"
+            f"{tournament_to_modify.start_date} {tournament_to_modify.number_rounds}\n\t"
+            f"{tournament_to_modify.description}\n\t"
         )
         display_message("Leave blank to keep the current value.")
 
         # Request new information
-        new_name_tournament = get_input(f"New name tournament ({tournament_to_modify.last_name}): ").strip()
+        new_name_tournament = get_input(f"New name tournament ({tournament_to_modify.name_tournament}): ").strip()
         new_location = get_input(f"New location ({tournament_to_modify.location}): ").strip()
-        new_start_date = get_input(f"New bistart_daterthdate ({tournament_to_modify.start_date}): ").strip()
+        new_start_date = get_input(f"New start_date ({tournament_to_modify.start_date}): ").strip()
         new_number_rounds = get_input(f"New number rounds ({tournament_to_modify.number_rounds}): ").strip()
         new_description = get_input(f"New description ({tournament_to_modify.description}): ").strip()
 
@@ -135,16 +150,17 @@ class TournamentController:
             tournament_to_modify.description = new_description
 
         # Save modifications
-        Tournament.save_data_tournament(tournament)
+        Tournament.save_data_tournament()
         display_message("Tournament successfully updated.")
 
     def delete_tournament(self):
         """Deleting a tournament with id"""
-        tournament_id = get_input("Enter the ID of the tournament to be deleted: ")
-        tournament = Tournament.load_from_file()  # Load tournament before modification
+        tournament_id_input = get_input("Enter the ID of the tournament to be deleted: ")
+        tournament_id = int(tournament_id_input)
+        tournaments = Tournament.load_from_file()  # Load tournament before modification
 
         # Check if the tournament exists
-        tournament_to_delete = next((t for t in tournament if t["id"] == tournament_id), None)
+        tournament_to_delete = next((t for t in tournaments if t.id == tournament_id), None)
 
         if not tournament_to_delete:
             display_message("Tournament not found.")
@@ -158,8 +174,10 @@ class TournamentController:
         )
 
         if confirmation == "y":
-            tournament = [t for t in tournament if t["id"] != tournament_id]  # Delete tournament
-            Tournament.save_data_tournament(tournament)  # Save new list
+            for i, t in enumerate(tournaments):
+                if t.id == tournament_id:
+                    del tournaments[i]
+            Tournament.save_data_tournament()
             display_message("Tournament successfully deleted.")
         else:
             display_message("Deletion cancelled.")
@@ -235,3 +253,17 @@ class TournamentController:
                  “draw” for a tie
         """
         pass
+
+    def display_tournament(self):
+        """display tournament"""
+        tournaments = Tournament.load_from_file()
+        for tournament in tournaments:
+            display_message(
+                f"\tID: {tournament.id}\n\t"
+                f"Tournament name: {tournament.name_tournament}\n\t"
+                f"Tournament location: {tournament.location}\n\t"
+                f"Start date: {tournament.start_date}\n\t"
+                f"Number of tournament rounds: {tournament.number_rounds}\n\t"
+                f"Tournament description: {tournament.description}\n\t"
+                f"End date: {tournament.end_date}\n\t"
+            )

@@ -1,8 +1,5 @@
-# import sys
-# import os
 import re
 
-# sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from models.player_model import Player
 from views.player_view import PlayerView
@@ -142,7 +139,8 @@ class PlayerController:
         players = Player.load_from_file()
         for player in players:
             display_message(
-                f"\tLast name: {player.last_name}\n\t"
+                f"\tID: {player.id}\n\t"
+                f"Last name: {player.last_name}\n\t"
                 f"First name: {player.first_name}\n\t"
                 f"Birthdate: {player.birthdate}\n\t"
                 f"National chess identifier: {player.national_chess_identifier}\n\n"

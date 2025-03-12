@@ -5,10 +5,11 @@ class TournamentView:
         print("2. Starting / Resuming a tournament")
         print("3. Modifying a tournament")
         print("4. Delete a tournament")
-        print("5. Return to main menu")
+        print("5. Display tournament")
+        print("6. Return to main menu")
 
         while True:
             choice = input("Your choice: ")
-            if choice in {"1", "2", "3", "4", "5"}:
+            if choice in {"1", "2", "3", "4", "5", "6"}:
                 return choice
-            print("\nInvalid choice, please enter a number between 1 and 5.")
+            print("\nInvalid choice, please enter a number between 1 and 6.")

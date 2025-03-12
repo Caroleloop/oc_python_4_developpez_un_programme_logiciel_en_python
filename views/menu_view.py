@@ -2,7 +2,7 @@ class MenuView:
     def display_main_menu():
         print("\nWelcome to the chess tournament program.")
         print("1. Player management")
-        print("2. tournaments management")
+        print("2. Tournaments management")
         print("3. View reports")
         print("4. Exit")
 

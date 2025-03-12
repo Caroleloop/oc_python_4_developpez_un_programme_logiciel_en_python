@@ -21,7 +21,7 @@ class TournoiApp:
             elif choix == "3":
                 self.rapport_controller.display_reports()
             elif choix == "4":
-                print("Goodbye!")
+                print("Goodbye!\n")
                 break
             else:
                 print("\nInvalid choice, please try again.")
