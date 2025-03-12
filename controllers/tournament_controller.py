@@ -14,24 +14,31 @@ class TournamentController:
 
     def tournament_management(self):
         while True:
-            choix = self.view.display_tournament_menu()
-            if choix == "1":
+            choice = self.view.display_tournament_menu()
+            if choice == "1-1":
                 self.create_tournament()
-            elif choix == "2":
+            elif choice == "1-2":
+                self.add_players_to_the_tournament()
+            elif choice == "1-3":
+                self.create_first_round()
+            elif choice == "2":
                 self.manage_tournament()
-            elif choix == "3":
+            elif choice == "3":
                 self.modify_tournament()
-            elif choix == "4":
+            elif choice == "4":
                 self.delete_tournament()
-            elif choix == "5":
+            elif choice == "5":
                 self.display_tournament()
-            elif choix == "6":
+            elif choice == "6":
                 break
             else:
-                print("Choix invalide.")
+                print("choice invalide.")
+
+    def manage_tournament(self):
+        pass
 
     def create_tournament(self):
-        """Création d’un tournoi"""
+        """Tournament creation"""
         name_tournament = get_input("\tTournament name: ").strip()
         location = get_input("\tTournament location: ").strip()
         start_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M").strip()
@@ -64,13 +71,14 @@ class TournamentController:
 
         # Request tournament ID
         tournament_id = get_input("Enter tournament ID to add players: ").strip()
+        tournament_id = int(tournament_id)
         tournament = next((t for t in tournament_data if t.id == tournament_id), None)
 
         if not tournament:
             display_message("Tournament not found.")
             return
 
-        display_message(f"Add players to tournament {tournament['name_tournament']} (ID: {tournament_id}).")
+        display_message(f"Add players to tournament {tournament.name_tournament} (ID: {tournament_id}).")
         display_message("Enter the IDs of the players to be added (type 'fin' to finish).")
 
         while True:
@@ -78,7 +86,10 @@ class TournamentController:
 
             if player_id.lower() == "fin":
                 break  # Exits the loop if the user types “end”.
-
+            try:
+                player_id = int(player_id)
+            except ValueError:
+                display_message("Invalid input. Please enter a number or 'fin' to quit.")
             # Check if the player exists
             player = next((p for p in players_data if p.id == player_id), None)
 
@@ -87,17 +98,56 @@ class TournamentController:
                 continue
 
             # Check if the player is already registered
-            if any(p["id"] == player_id for p in tournament["players"]):
+            if any(p.id == player_id for p in tournament.players):
                 display_message(f"Player {player_id} is already registered in this tournament.")
                 continue
 
             # Add player to tournament
-            tournament["players"].append(player)
+            tournament.players.append(player)
             display_message(f"Player ID: {player_id} added successfully.")
 
         # Sauvegarder les modifications dans data_tournaments.json
-        Tournament.save_data()
+        Tournament.save_data_tournament()
         display_message("All players have been added to the tournament.")
+
+    def create_first_round(self):
+        """Creates the first round of the tournament by randomly generating pairs of players."""
+        tournaments = Tournament.load_from_file()
+
+        tournament_id = get_input("Enter tournament ID : ").strip()
+        try:
+            tournament_id = int(tournament_id)
+        except ValueError:
+            display_message("Invalid ID. Please enter a number.")
+            return
+
+        tournament = next((t for t in tournaments if t.id == tournament_id), None)
+
+        if not tournament:
+            display_message("Tournament not found.")
+            return
+
+        # Vérifier que le tournoi a bien des joueurs
+        if len(tournament.players) < 2:
+            display_message("Not enough players to start the tournament.")
+            return
+
+        self.shuffle_player()
+        pairs = self.create_pairs_round_1()
+        matches = [([p1, 0], [p2, 0]) for p1, p2 in pairs]
+
+        round_1 = {
+            "nom": "Round 1",
+            "date_debut": datetime.datetime.now().strftime("%Y-%m-%d %H:%M"),
+            "date_fin": None,
+            "matches": matches,
+        }
+
+        tournament.rounds.append(round_1)
+        tournament.current_round = 1
+        Tournament.save_data_tournament()
+
+        display_message("First round successfully created!")
 
     def tournament_end_date(self):
         """tournament end date"""
