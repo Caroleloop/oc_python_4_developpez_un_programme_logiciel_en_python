@@ -34,7 +34,7 @@ class MatchController:
             raise ValueError("Invalid result: must be '1', '2' ou 'draw'")
 
     @staticmethod
-    def save_scores_to_json(self, filename="data_players.json"):
+    def save_scores_to_json(self, filename="data_tournament.json"):
         """Saves scores in a JSON file."""
         try:
             # Load existing scores if any

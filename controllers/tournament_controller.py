@@ -98,12 +98,12 @@ class TournamentController:
                 continue
 
             # Check if the player is already registered
-            if any(p.id == player_id for p in tournament.players):
+            if any(p_id == player_id for p_id in tournament.players):
                 display_message(f"Player {player_id} is already registered in this tournament.")
                 continue
 
-            # Add player to tournament
-            tournament.players.append(player)
+                # Add player to tournament
+            tournament.players.append(player_id)
             display_message(f"Player ID: {player_id} added successfully.")
 
         # Sauvegarder les modifications dans data_tournaments.json
@@ -132,19 +132,21 @@ class TournamentController:
             display_message("Not enough players to start the tournament.")
             return
 
-        self.shuffle_player()
-        pairs = self.create_pairs_round_1()
+        players_list = self.shuffle_player(tournament_id)
+        pairs = self.create_pairs_round_1(players_list)
         matches = [([p1, 0], [p2, 0]) for p1, p2 in pairs]
 
         round_1 = {
             "nom": "Round 1",
             "date_debut": datetime.datetime.now().strftime("%Y-%m-%d %H:%M"),
-            "date_fin": None,
+            "date_fin": "",
             "matches": matches,
         }
 
         tournament.rounds.append(round_1)
         tournament.current_round = 1
+        print(tournament.rounds)
+
         Tournament.save_data_tournament()
 
         display_message("First round successfully created!")
@@ -233,25 +235,30 @@ class TournamentController:
             display_message("Deletion cancelled.")
         pass
 
-    def shuffle_player(self):
+    def shuffle_player(self, tournament_id):
         """
         Randomly shuffles the list of players to avoid any bias in pair formation.
         """
         tournament_data = Tournament.load_from_file()
-        self.players_list = tournament_data.get("players", [])
-        if len(self.players_list) > 1:
-            random.shuffle(self.players_list)
-        return self.players_list
 
-    def create_pairs_round_1(self):
+        for tournament in tournament_data:
+            if tournament.id == tournament_id:
+                players_list = tournament.players
+
+        # self.players_list = tournament_data[tournament_id].get("players", [])
+        if len(players_list) > 1:
+            random.shuffle(players_list)
+        return players_list
+
+    def create_pairs_round_1(self, players_list):
         """
         Generates player pairs for the first round according to random order.
 
         Returns:
             list[tuple]: A list of tuples containing the player pairs.
         """
-        self.shuffle_player()
-        pairs = [(self.players_list[i], self.players_list[i + 1]) for i in range(0, len(self.players_list), 2)]
+
+        pairs = [(players_list[i], players_list[i + 1]) for i in range(0, len(players_list), 2)]
         return pairs
 
     def creation_pairs_other_rounds(self):
