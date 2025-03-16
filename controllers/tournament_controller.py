@@ -21,8 +21,14 @@ class TournamentController:
                 self.add_players_to_the_tournament()
             elif choice == "1-3":
                 self.create_first_round()
-            elif choice == "2":
-                self.manage_tournament()
+            elif choice == "2-1":
+                self.start_round_1()
+            elif choice == "2-2":
+                self.score_update()
+            elif choice == "2-3":
+                self.start_another_round()
+            elif choice == "2-4":
+                self.end_of_tournament()
             elif choice == "3":
                 self.modify_tournament()
             elif choice == "4":
@@ -34,14 +40,10 @@ class TournamentController:
             else:
                 print("choice invalide.")
 
-    def manage_tournament(self):
-        pass
-
     def create_tournament(self):
         """Tournament creation"""
         name_tournament = get_input("\tTournament name: ").strip()
         location = get_input("\tTournament location: ").strip()
-        start_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M").strip()
         # number_rounds = get_input("\tNumber of tournament rounds: ")
         while True:
             number_rounds_input = get_input("\tNumber of tournament rounds (default: 4): ").strip()
@@ -60,7 +62,7 @@ class TournamentController:
 
         description = get_input("\tTournament description: ").strip()
 
-        new_tournament = Tournament(name_tournament, location, start_date, "", number_rounds, description)
+        new_tournament = Tournament(name_tournament, location, "", "", number_rounds, description)
         new_tournament.save_data_tournament()
 
     def add_players_to_the_tournament(self):
@@ -168,12 +170,30 @@ class TournamentController:
         Tournament.save_data_tournament()
         display_message("First round successfully created!")
 
-    def tournament_end_date(self):
+    def end_of_tournament(self):
         """tournament end date"""
-        end_tournament = get_input("Is the tournament finished? (y/n): ").strip().lower()
-        if end_tournament == "y":
-            end_date = self.end_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-            return end_date
+        tournament_data = Tournament.load_from_file()
+        tournament_id = get_input("Enter the tournament ID to start Round 1: ").strip()
+        try:
+            tournament_id = int(tournament_id)
+        except ValueError:
+            display_message("Invalid ID. Please enter a valid number.")
+            return
+
+        tournament = next((t for t in tournament_data if t.id == tournament_id), None)
+
+        if not tournament:
+            display_message("Tournament not found.")
+            return
+
+        if tournament.start_date:
+            display_message("The tournament has already begun.")
+            return
+
+        tournament.end_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        Tournament.save_data_tournament()
+
+        display_message(f"The tournament '{tournament.name_tournament}' ended on {tournament.start_date}.")
 
     def modify_tournament(self):
         """Allows the user to modify the information of an existing tournament by entering its ID.
@@ -313,7 +333,7 @@ class TournamentController:
                 assigned_pairs.append((player2, player1, ["White", "Black"]))  # player2 gets white, player1 gets black
         return assigned_pairs
 
-    def update_score(self, player, points):
+    def score_update(self, player, points):
         """
         Updates the player's score after a match.
         Gives the results of the match: the winner receives 1 point, the loser receives 0 points,
@@ -384,3 +404,56 @@ class TournamentController:
                         )
                     else:
                         display_message("\t\t\t- Invalid player data.")
+
+    def start_round_1(self):
+        """début du tournois avec le round 1"""
+        tournament_data = Tournament.load_from_file()
+        tournament_id = get_input("Enter the tournament ID to start Round 1: ").strip()
+        try:
+            tournament_id = int(tournament_id)
+        except ValueError:
+            display_message("Invalid ID. Please enter a valid number.")
+            return
+
+        tournament = next((t for t in tournament_data if t.id == tournament_id), None)
+        if not tournament:
+            display_message("Tournament not found.")
+            return
+
+        round_1 = next((r for r in tournament.rounds if r["nom"] == "Round 1"), None)
+        if not round_1:
+            display_message("Le Round 1 n'a pas encore été créé.")
+            return
+
+        round_1["date_debut"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+
+        Tournament.save_data_tournament()
+        display_message("Round 1 off to a successful start!")
+
+    def end_round(self):
+        """début du tournois avec le round 1"""
+        tournament_data = Tournament.load_from_file()
+        tournament_id = get_input("Enter the tournament ID to start Round 1: ").strip()
+        try:
+            tournament_id = int(tournament_id)
+        except ValueError:
+            display_message("Invalid ID. Please enter a valid number.")
+            return
+
+        tournament = next((t for t in tournament_data if t.id == tournament_id), None)
+        if not tournament:
+            display_message("Tournament not found.")
+            return
+
+        round_1 = next((r for r in tournament.rounds if r["nom"] == "Round 1"), None)
+        if not round_1:
+            display_message("Le Round 1 n'a pas encore été créé.")
+            return
+
+        round_1["end_debut"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+
+        Tournament.save_data_tournament()
+        display_message("Round 1 off to a successful start!")
+
+    def start_another_round(self):
+        pass
