@@ -127,14 +127,25 @@ class TournamentController:
             display_message("Tournament not found.")
             return
 
-        # Vérifier que le tournoi a bien des joueurs
+        # check that the tournament has players
         if len(tournament.players) < 2:
             display_message("Not enough players to start the tournament.")
             return
 
+        # Check if Round 1 already exists
+        if any(round_["nom"] == "Round 1" for round_ in tournament.rounds):
+            display_message("Round 1 has already been created.")
+            return
+
         players_list = self.shuffle_player(tournament_id)
         pairs = self.create_pairs_round_1(players_list)
-        matches = [([p1, 0], [p2, 0]) for p1, p2 in pairs]
+        # matches = [[[p1, 0], [p2, 0]] for p1, p2 in pairs]
+        matches = []
+
+        # For each pair, we determine the colors (White or Black)
+        for p1, p2 in pairs:
+            colors = self.draw_white_black([(p1, p2)])[0]  # Assuming draw_white_black returns a list of pairs
+            matches.append([[p1, 0], [p2, 0], colors])  # Store players with initial score (0) and their colors
 
         round_1 = {
             "nom": "Round 1",
@@ -145,10 +156,16 @@ class TournamentController:
 
         tournament.rounds.append(round_1)
         tournament.current_round = 1
+
+        # Remplace l'ancien tournoi dans la liste des tournois
+        for i, t in enumerate(tournaments):
+            if t.id == tournament_id:
+                tournaments[i] = tournament
+                break
+
         print(tournament.rounds)
 
         Tournament.save_data_tournament()
-
         display_message("First round successfully created!")
 
     def tournament_end_date(self):
@@ -187,6 +204,7 @@ class TournamentController:
         new_location = get_input(f"New location ({tournament_to_modify.location}): ").strip()
         new_start_date = get_input(f"New start_date ({tournament_to_modify.start_date}): ").strip()
         new_number_rounds = get_input(f"New number rounds ({tournament_to_modify.number_rounds}): ").strip()
+        new_number_rounds = int(new_number_rounds)
         new_description = get_input(f"New description ({tournament_to_modify.description}): ").strip()
 
         # Update information if a new value is provided
@@ -290,9 +308,9 @@ class TournamentController:
         assigned_pairs = []
         for player1, player2 in pairs:
             if random.choice([True, False]):
-                assigned_pairs.append((player1, player2))  # player1 gets white, player2 gets black
+                assigned_pairs.append((player1, player2, ["White", "Black"]))  # player1 gets white, player2 gets black
             else:
-                assigned_pairs.append((player2, player1))  # player2 gets white, player1 gets black
+                assigned_pairs.append((player2, player1, ["White", "Black"]))  # player2 gets white, player1 gets black
         return assigned_pairs
 
     def update_score(self, player, points):
@@ -314,6 +332,8 @@ class TournamentController:
     def display_tournament(self):
         """display tournament"""
         tournaments = Tournament.load_from_file()
+        players_data = Player.load_from_file()
+
         for tournament in tournaments:
             display_message(
                 f"\tID: {tournament.id}\n\t"
@@ -323,4 +343,44 @@ class TournamentController:
                 f"Number of tournament rounds: {tournament.number_rounds}\n\t"
                 f"Tournament description: {tournament.description}\n\t"
                 f"End date: {tournament.end_date}\n\t"
+                # f"Players: {tournament.players}\n\t"
+                # f"Rounds: {tournament.rounds}\n\t"
             )
+            display_message("\tPlayers: ")
+            for player_id in tournament.players:
+                player = next((p for p in players_data if p.id == player_id), None)
+                if player:
+                    display_message(
+                        f"\t\tID: {player.id}\n\t"
+                        f"\tLast name: {player.last_name}\n\t"
+                        f"\tFirst name: {player.first_name}\n\t"
+                        f"\tBirthdate: {player.birthdate}\n\t"
+                        f"\tNational chess identifier: {player.national_chess_identifier}\n\t"
+                        f"\tScore: {player.score}\n"
+                    )
+                else:
+                    display_message(f"\t\t- Player ID {player_id} not found.")
+
+            display_message("\tRounds: ")
+            for round_ in tournament.rounds:
+                display_message("essai")
+                display_message(
+                    f"\t\t- {round_['nom']}\n "
+                    f"\t\t start round: {round_['date_debut']}\n"
+                    f"\t\t end round: {round_['date_fin']}\n"
+                )
+                display_message("\t\t Matches: ")
+                for match in round_["matches"]:
+                    player1, player2, colors = match  # each match is a list of player data and colors
+                    player1_info = next((p for p in players_data if p.id == player1[0]), None)
+                    player2_info = next((p for p in players_data if p.id == player2[0]), None)
+
+                    if player1_info and player2_info:
+                        display_message(
+                            f"\t\t\t{player1_info.first_name} {player1_info.last_name} "
+                            f"(ID: {player1_info.id}) score: {player1_info.score} - {colors[0]} vs "
+                            f"{player2_info.first_name} {player2_info.last_name} "
+                            f"(ID: {player2_info.id}) score: {player2_info.score} - {colors[1]}"
+                        )
+                    else:
+                        display_message("\t\t\t- Invalid player data.")
