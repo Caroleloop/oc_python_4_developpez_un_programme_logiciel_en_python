@@ -32,6 +32,7 @@ class PlayerController:
 
     def add_new_player(self):
         """Create a player, save it in the database"""
+        Player.load_from_file()
         last_name = get_input("Player's last name: ")
         first_name = get_input("Player's first name: ")
         while True:
@@ -42,7 +43,7 @@ class PlayerController:
         national_chess_identifier = get_input("National chess identifier: ")
 
         new_player = Player(last_name, first_name, birthdate, national_chess_identifier, score=0)
-        new_player.save_data_players()
+        Player.save_data_players()
         return new_player
 
     def modify_player(self):
@@ -124,13 +125,13 @@ class PlayerController:
 
     def sort_players_by_score(self):
         """Loads players from file and sorts them by score"""
-        players_data = Player.load_player_data()
+        players_data = Player.load_from_file()
         sorted_players_by_score = sorted(players_data, key=lambda x: x.score, reverse=True)
         return sorted_players_by_score
 
     def sort_players_in_alphabetical_order(self):
         """Loads players from file and sorts them alphabetically (last name, first name)."""
-        players = Player.load_player_data()
+        players = Player.load_from_file()
         sorted_players_by_last_name = sorted(players, key=lambda x: (x.last_name.lower(), x.first_name.lower()))
         return sorted_players_by_last_name
 

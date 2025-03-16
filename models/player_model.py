@@ -84,6 +84,9 @@ class Player:
                 )
                 player.id = player_data["id"]
 
+            if Player.all_players:
+                Player.counter = max(player.id for player in Player.all_players)
+
             return Player.all_players
         except (json.JSONDecodeError, KeyError) as e:
             print(f"Error loading player data: {e}")
@@ -126,12 +129,4 @@ class Player:
 
 
 if __name__ == "__main__":
-    Player("Carlsen", "Magnus", "1990-11-30", "NOR12345")
-    Player("Nakamura", "Hikaru", "1987-12-09", "USA67890")
-    Player("Firouzja", "Alireza", "2003-06-18", "FRA54321")
-    Player("Ding", "Liren", "1992-10-24", "CHN98765")
-    Player("Gukesh", "Dommaraju", "2006-05-29", "IND24680")
-    Player.save_data_players()
-    Player.load_from_file("data_players.json")
-    show_player = Player.get_player_data(2)
-    print(str(show_player))
+    pass
