@@ -10,17 +10,10 @@ class RoundController:
         round_data = {"name": name_round, "start_time": start_time, "end_time": end_time, "matches": []}
         return round_data
 
-    def create_liste_match(self, pairs):
-        """
-        Generates the match list for a given round.
-
-        Args:
-            pairs (list[tuple]): List of player pairs.
-
-        Returns:
-            list[Match]: List of Match objects corresponding to matches in the round.
-        """
-        pass
-
     def sort_players_score(self):
         pass
+
+    def initialize_current_round(self, tournament):
+        """Initialise l'attribut current_round si inexistant."""
+        if not hasattr(tournament, "current_round"):
+            tournament.current_round = 1

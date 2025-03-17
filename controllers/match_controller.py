@@ -15,7 +15,7 @@ class MatchController:
         self.match_model(player_1=self.player_1, player_2=self.player_2)
         print(f"Match créé entre {self.player_1} et {self.player_2}.")
 
-    def match_result(self, result):
+    def match_result(self, player1, player2, result, match):
         """Gives the results of the match:
         the winner receives 1 point,
         the loser receives 0 points,
@@ -24,14 +24,17 @@ class MatchController:
         Results: “1” if player1 wins, “2” if player2 wins, “draw” for a tie
         """
         if result == "1":
-            self.scores[self.player_1] += 1
+            player1[1] += 1
         elif result == "2":
-            self.scores[self.player_2] += 1
+            player2[1] += 1
         elif result == "draw":
-            self.scores[self.player_1] += 0.5
-            self.scores[self.player_2] += 0.5
+            player1[1] += 0.5
+            player2[1] += 0.5
         else:
             raise ValueError("Invalid result: must be '1', '2' ou 'draw'")
+
+        match[0] = player1
+        match[1] = player2
 
     @staticmethod
     def save_scores_to_json(self, filename="data_tournament.json"):

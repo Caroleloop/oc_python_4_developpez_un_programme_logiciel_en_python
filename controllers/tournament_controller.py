@@ -3,6 +3,8 @@ import datetime
 from views.tournament_view import TournamentView
 from models.tournament_model import Tournament
 from models.player_model import Player
+from controllers.match_controller import MatchController
+from controllers.round_controller import RoundController
 from views.utile import get_input, display_message
 
 
@@ -11,6 +13,8 @@ class TournamentController:
         self.view = TournamentView()
         self.model = Tournament
         self.player_model = Player
+        self.match_controller = MatchController()
+        self.round_controller = RoundController()
 
     def tournament_management(self):
         while True:
@@ -333,21 +337,52 @@ class TournamentController:
                 assigned_pairs.append((player2, player1, ["White", "Black"]))  # player2 gets white, player1 gets black
         return assigned_pairs
 
-    def score_update(self, player, points):
+    def score_update(self):
         """
-        Updates the player's score after a match.
-        Gives the results of the match: the winner receives 1 point, the loser receives 0 points,
-        in the event of a draw each receives 0.5 points.
-
-        Args:
-            player (Player): The player whose score is to be updated.
-            points (float): Number of points obtained (1 for a win, 0.5 for a draw, 0 for a loss).
-
-        Results: “1” if player1 wins,
-                 “2” if player2 wins,
-                 “draw” for a tie
+        Updates player scores after a match and updates the current round.
         """
-        pass
+        tournaments = self.model.load_from_file()
+        tournament_id = get_input("Entrez l'ID du tournoi: ").strip()
+        tournament_id = int(tournament_id)
+
+        try:
+            tournament_id = int(tournament_id)
+        except ValueError:
+            display_message("ID invalide. Veuillez entrer un nombre.")
+            return
+
+        tournament = next((t for t in tournaments if t.id == tournament_id), None)
+
+        if not tournament:
+            display_message("Tournoi non trouvé.")
+            return
+
+        if not tournament.rounds:
+            display_message("Aucun round trouvé pour ce tournoi.")
+            return
+
+        self.round_controller.initialize_current_round(tournament)
+
+        current_round_index = tournament.current_round - 1
+        current_round = tournament.rounds[current_round_index]
+
+        for match in current_round["matches"]:
+            player1, player2, colors = match
+            display_message(f"Match entre {player1[0]} et {player2[0]}")
+            result = get_input("Résultat (1: Joueur 1 gagne, 2: Joueur 2 gagne, draw: Égalité) : ")
+
+            try:
+                self.match_controller.match_result(player1, player2, result, match)
+            except ValueError as e:
+                display_message(str(e))
+                return
+
+            # Mettre à jour le round
+            current_round["date_fin"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+            tournament.current_round += 1
+            Tournament.save_data_tournament()
+
+            display_message("Scores mis à jour et round terminé !")
 
     def display_tournament(self):
         """display tournament"""
