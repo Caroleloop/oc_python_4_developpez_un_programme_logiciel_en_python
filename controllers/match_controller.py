@@ -3,6 +3,7 @@ import json
 
 
 from models.match_model import Match
+from views.utile import display_message
 
 
 class MatchController:
@@ -12,8 +13,8 @@ class MatchController:
 
     def create_match(self, player_1, player_2):
         """Create a new match instance and initialize scores."""
-        self.match_model(player_1=self.player_1, player_2=self.player_2)
-        print(f"Match créé entre {self.player_1} et {self.player_2}.")
+        self.match_model(player_1, player_2)
+        display_message(f"Match créé entre {player_1} et {player_2}.")
 
     def match_result(self, player1, player2, result, match):
         """Gives the results of the match:
@@ -45,7 +46,7 @@ class MatchController:
                 with open(filename, "r", encoding="utf-8") as file:
                     players_data = json.load(file)
             else:
-                print("File not found.")
+                display_message("File not found.")
                 return
 
             # Update existing scores with new scores
@@ -57,9 +58,34 @@ class MatchController:
             # Save updated scores
             with open(filename, "w", encoding="utf-8") as file:
                 json.dump(players_data, file, indent=4)
-            print("Scores recorded with success!")
+            display_message("Scores recorded with success!")
         except Exception as e:
-            print(f"Error when recording scores : {e}")
+            display_message(f"Error when recording scores : {e}")
+
+    def update_player_score(self, player_id, score, filename="data_players.json"):
+        """Updates a player's score in data_players.json"""
+        if not os.path.exists(filename):
+            display_message("File data_players.json not found.")
+            return
+
+        # Load player data
+        with open(filename, "r", encoding="utf-8") as file:
+            players_data = json.load(file)
+
+        # Find the player and update his score
+        for player in players_data:
+            if player["id"] == player_id:
+                player["score"] += score
+                break
+        else:
+            print(f"Player with ID {player_id} not found.")
+            return
+
+        # Save changes
+        with open(filename, "w", encoding="utf-8") as file:
+            json.dump(players_data, file, indent=4)
+
+        display_message(f"Updated score for the player {player_id}.")
 
 
 if __name__ == "__main__":

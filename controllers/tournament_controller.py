@@ -112,7 +112,7 @@ class TournamentController:
             tournament.players.append(player_id)
             display_message(f"Player ID: {player_id} added successfully.")
 
-        # Sauvegarder les modifications dans data_tournaments.json
+        # Save changes in data_tournaments.json
         Tournament.save_data_tournament()
         display_message("All players have been added to the tournament.")
 
@@ -373,11 +373,13 @@ class TournamentController:
 
             try:
                 self.match_controller.match_result(player1, player2, result, match)
+                self.match_controller.update_player_score(player1[0], player1[1])
+                self.match_controller.update_player_score(player2[0], player2[1])
             except ValueError as e:
                 display_message(str(e))
                 return
 
-            # Mettre à jour le round
+            # Update round
             current_round["date_fin"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
             tournament.current_round += 1
             Tournament.save_data_tournament()
@@ -398,8 +400,6 @@ class TournamentController:
                 f"Number of tournament rounds: {tournament.number_rounds}\n\t"
                 f"Tournament description: {tournament.description}\n\t"
                 f"End date: {tournament.end_date}\n\t"
-                # f"Players: {tournament.players}\n\t"
-                # f"Rounds: {tournament.rounds}\n\t"
             )
             display_message("\tPlayers: ")
             for player_id in tournament.players:
