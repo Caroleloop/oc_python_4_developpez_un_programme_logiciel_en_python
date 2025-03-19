@@ -6,7 +6,9 @@ class Tournament:
     counter = 0
     all_tournaments = []
 
-    def __init__(self, name_tournament, location, start_date, end_date=(""), number_rounds=4, description=""):
+    def __init__(
+        self, name_tournament, location, start_date, end_date=(""), number_rounds=4, description="", current_round=1
+    ):
         """initalizing a tournament"""
         Tournament.counter += 1
         self.id = Tournament.counter
@@ -19,7 +21,7 @@ class Tournament:
         self.rounds = []
         self.description = description
         self.players = []
-
+        self.current_round = current_round
         # add tournaments to the list of tournament
         Tournament.all_tournaments.append(self)
 
@@ -64,6 +66,7 @@ class Tournament:
         Args:
             filename (str, optional): The file name to load tournaments from. Defaults to "data_tournament.json".
         """
+        Tournament.all_tournaments.clear()
         filename = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", filename))
         if not os.path.exists(filename):
             print("No data file found. Returning an empty list.")
@@ -72,7 +75,7 @@ class Tournament:
             with open(filename, "r", encoding="utf-8") as file:
                 data = json.load(file)
 
-            Tournament.all_tournaments = []
+            # Tournament.all_tournaments = []
 
             for tournament_data in data:
                 tournament = Tournament(
