@@ -2,24 +2,32 @@ from views.menu_view import MenuView
 from controllers.player_controller import PlayerController
 from controllers.tournament_controller import TournamentController
 from controllers.report_controller import ReportController
+from models.player_model import Player
+from models.tournament_model import Tournament
 
 
 class TournoiApp:
     def __init__(self):
         self.menu_view = MenuView
-        self.joueur_controller = PlayerController()
-        self.tournoi_controller = TournamentController()
-        self.rapport_controller = ReportController()
+        self.player_controller = PlayerController(players=[])
+        self.tournament_controller = TournamentController(tournaments=[], players=[])
+        self.report_controller = ReportController()
+
+        self.players = Player.load_data_players()
+        self.tournaments = Tournament.load_data_tournaments()
+        self.player_controller = PlayerController(self.players)
+        self.tournament_controller = TournamentController(self.tournaments, self.players)
+        self.report_controller = ReportController()
 
     def run(self):
         while True:
             choix = MenuView.display_main_menu()
             if choix == "1":
-                self.joueur_controller.player_management()
+                self.player_controller.player_management()
             elif choix == "2":
-                self.tournoi_controller.tournament_management()
+                self.tournament_controller.tournament_management()
             elif choix == "3":
-                self.rapport_controller.display_reports()
+                self.report_controller.display_reports()
             elif choix == "4":
                 print("Goodbye!\n")
                 break

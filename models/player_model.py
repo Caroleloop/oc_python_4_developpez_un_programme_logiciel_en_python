@@ -58,7 +58,7 @@ class Player:
             return False
 
     @staticmethod
-    def load_from_file(filename="data_players.json"):
+    def load_data_players(filename="data_players.json"):
         """
         Loads players from a JSON file and repopulates the player list.
 
@@ -87,10 +87,11 @@ class Player:
             if Player.all_players:
                 Player.counter = max(player.id for player in Player.all_players)
 
-            return Player.all_players
+            # return Player.all_players
         except (json.JSONDecodeError, KeyError) as e:
             print(f"Error loading player data: {e}")
             return []
+        return Player.all_players
 
     @staticmethod
     def get_player_data(player_id):

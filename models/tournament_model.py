@@ -59,7 +59,7 @@ class Tournament:
             return False
 
     @staticmethod
-    def load_from_file(filename="data_tournament.json"):
+    def load_data_tournaments(filename="data_tournament.json"):
         """
         Loads tournaments from a JSON file and repopulates the tournaments list.
 
@@ -82,18 +82,21 @@ class Tournament:
                     name_tournament=tournament_data["name_tournament"],
                     location=tournament_data["location"],
                     start_date=tournament_data["start_date"],
+                    end_date=tournament_data.get("end_date", ""),
                     number_rounds=tournament_data["number_rounds"],
                     description=tournament_data["description"],
+                    current_round=tournament_data.get("current_round", 0),
                 )
                 tournament.end_date = tournament_data.get("end_date", "0000-00-00")
                 tournament.rounds = tournament_data.get("rounds", [])
                 tournament.players = tournament_data.get("players", [])
                 tournament.id = tournament_data["id"]
 
-            return Tournament.all_tournaments
+            # return Tournament.all_tournaments
         except (json.JSONDecodeError, KeyError) as e:
             print(f"Error loading player data: {e}")
             return []
+        return Tournament.all_tournaments
 
     @staticmethod
     def get_tournament_data(tournament_id):

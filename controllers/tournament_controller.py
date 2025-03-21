@@ -9,12 +9,14 @@ from views.utile import get_input, display_message
 
 
 class TournamentController:
-    def __init__(self):
+    def __init__(self, tournaments, players):
         self.view = TournamentView()
         self.model = Tournament
         self.player_model = Player
         self.match_controller = MatchController()
         self.round_controller = RoundController()
+        self.tournaments = tournaments
+        self.players = players
 
     def tournament_management(self):
         while True:
@@ -72,13 +74,13 @@ class TournamentController:
     def add_players_to_the_tournament(self):
         """Add players to a given tournament based on their IDs"""
         # Load player and tournament data
-        players_data = Player.load_from_file()
-        tournament_data = Tournament.load_from_file()
+        # players_data = Player.load_from_file()
+        # tournament_data = Tournament.load_from_file()
 
         # Request tournament ID
         tournament_id = get_input("Enter tournament ID to add players: ").strip()
         tournament_id = int(tournament_id)
-        tournament = next((t for t in tournament_data if t.id == tournament_id), None)
+        tournament = next((t for t in self.tournaments if t.id == tournament_id), None)
 
         if not tournament:
             display_message("Tournament not found.")
@@ -97,7 +99,7 @@ class TournamentController:
             except ValueError:
                 display_message("Invalid input. Please enter a number or 'fin' to quit.")
             # Check if the player exists
-            player = next((p for p in players_data if p.id == player_id), None)
+            player = next((p for p in self.players if p.id == player_id), None)
 
             if not player:
                 display_message(f"Player with ID {player_id} not found.")
@@ -118,7 +120,7 @@ class TournamentController:
 
     def create_first_round(self):
         """Creates the first round of the tournament by randomly generating pairs of players."""
-        tournaments = Tournament.load_from_file()
+        # tournaments = Tournament.load_from_file()
 
         tournament_id = get_input("Enter tournament ID : ").strip()
         try:
@@ -127,7 +129,7 @@ class TournamentController:
             display_message("Invalid ID. Please enter a number.")
             return
 
-        tournament = next((t for t in tournaments if t.id == tournament_id), None)
+        tournament = next((t for t in self.tournaments if t.id == tournament_id), None)
 
         if not tournament:
             display_message("Tournament not found.")
@@ -164,18 +166,17 @@ class TournamentController:
         tournament.current_round = 1
 
         # Remplace l'ancien tournoi dans la liste des tournois
-        for i, t in enumerate(tournaments):
+        for i, t in enumerate(self.tournaments):
             if t.id == tournament_id:
-                tournaments[i] = tournament
+                self.tournaments[i] = tournament
                 break
 
-        print(tournament.rounds)
         Tournament.save_data_tournament()
         display_message("First round successfully created!")
 
     def end_of_tournament(self):
         """tournament end date"""
-        tournament_data = Tournament.load_from_file()
+        # tournament_data = Tournament.load_from_file()
         tournament_id = get_input("Enter the tournament ID to start Round 1: ").strip()
         try:
             tournament_id = int(tournament_id)
@@ -183,7 +184,7 @@ class TournamentController:
             display_message("Invalid ID. Please enter a valid number.")
             return
 
-        tournament = next((t for t in tournament_data if t.id == tournament_id), None)
+        tournament = next((t for t in self.tournaments if t.id == tournament_id), None)
 
         if not tournament:
             display_message("Tournament not found.")
@@ -203,10 +204,10 @@ class TournamentController:
         If the user leaves a field empty, the old value is retained."""
         tournament_id = get_input("Enter the ID of the tournament to modify: ")
         tournament_id = int(tournament_id)
-        tournament = Tournament.load_from_file()  # Load existing players
+        # tournament = Tournament.load_from_file()  # Load existing players
 
         # Find the tournament to modify
-        tournament_to_modify = next((t for t in tournament if t.id == tournament_id), None)
+        tournament_to_modify = next((t for t in self.tournaments if t.id == tournament_id), None)
 
         if not tournament_to_modify:
             display_message("Tournament not found.")
@@ -250,10 +251,10 @@ class TournamentController:
         """Deleting a tournament with id"""
         tournament_id_input = get_input("Enter the ID of the tournament to be deleted: ")
         tournament_id = int(tournament_id_input)
-        tournaments = Tournament.load_from_file()  # Load tournament before modification
+        # tournaments = Tournament.load_from_file()  # Load tournament before modification
 
         # Check if the tournament exists
-        tournament_to_delete = next((t for t in tournaments if t.id == tournament_id), None)
+        tournament_to_delete = next((t for t in self.tournaments if t.id == tournament_id), None)
 
         if not tournament_to_delete:
             display_message("Tournament not found.")
@@ -267,9 +268,9 @@ class TournamentController:
         )
 
         if confirmation == "y":
-            for i, t in enumerate(tournaments):
+            for i, t in enumerate(self.tournaments):
                 if t.id == tournament_id:
-                    del tournaments[i]
+                    del self.tournaments[i]
             Tournament.save_data_tournament()
             display_message("Tournament successfully deleted.")
         else:
@@ -280,9 +281,9 @@ class TournamentController:
         """
         Randomly shuffles the list of players to avoid any bias in pair formation.
         """
-        tournament_data = Tournament.load_from_file()
+        # tournament_data = Tournament.load_from_file()
 
-        for tournament in tournament_data:
+        for tournament in self.tournaments:
             if tournament.id == tournament_id:
                 players_list = tournament.players
 
@@ -340,7 +341,7 @@ class TournamentController:
         """
         Updates player scores after a match and updates the current round.
         """
-        tournaments = self.model.load_from_file()
+        # tournaments = self.model.load_from_file()
         tournament_id = get_input("Entrez l'ID du tournoi: ").strip()
         tournament_id = int(tournament_id)
 
@@ -350,7 +351,7 @@ class TournamentController:
             display_message("ID invalide. Veuillez entrer un nombre.")
             return
 
-        tournament = next((t for t in tournaments if t.id == tournament_id), None)
+        tournament = next((t for t in self.tournaments if t.id == tournament_id), None)
 
         if not tournament:
             display_message("Tournoi non trouvé.")
@@ -387,12 +388,12 @@ class TournamentController:
 
     def display_tournament(self):
         """display tournament"""
-        tournaments = Tournament.load_from_file()
-        players_data = Player.load_from_file()
+        # tournaments = Tournament.load_from_file()
+        # players_data = Player.load_from_file()
 
-        for tournament in tournaments:
+        for tournament in self.tournaments:
             display_message(
-                f"\tID: {tournament.id}\n\t"
+                f"\n\n\tID: {tournament.id}\n\t"
                 f"Tournament name: {tournament.name_tournament}\n\t"
                 f"Tournament location: {tournament.location}\n\t"
                 f"Start date: {tournament.start_date}\n\t"
@@ -402,7 +403,7 @@ class TournamentController:
             )
             display_message("\tPlayers: ")
             for player_id in tournament.players:
-                player = next((p for p in players_data if p.id == player_id), None)
+                player = next((p for p in self.players if p.id == player_id), None)
                 if player:
                     display_message(
                         f"\t\tID: {player.id}\n\t"
@@ -425,8 +426,8 @@ class TournamentController:
                 display_message("\t\t Matches: ")
                 for match in round_["matches"]:
                     player1, player2, colors = match  # each match is a list of player data and colors
-                    player1_info = next((p for p in players_data if p.id == player1[0]), None)
-                    player2_info = next((p for p in players_data if p.id == player2[0]), None)
+                    player1_info = next((p for p in self.players if p.id == player1[0]), None)
+                    player2_info = next((p for p in self.players if p.id == player2[0]), None)
 
                     if player1_info and player2_info:
                         display_message(
@@ -440,7 +441,7 @@ class TournamentController:
 
     def start_round_1(self):
         """début du tournois avec le round 1"""
-        tournament_data = Tournament.load_from_file()
+        # tournament_data = Tournament.load_from_file()
         tournament_id = get_input("Enter the tournament ID to start Round 1: ").strip()
         try:
             tournament_id = int(tournament_id)
@@ -448,7 +449,7 @@ class TournamentController:
             display_message("Invalid ID. Please enter a valid number.")
             return
 
-        tournament = next((t for t in tournament_data if t.id == tournament_id), None)
+        tournament = next((t for t in self.tournaments if t.id == tournament_id), None)
         if not tournament:
             display_message("Tournament not found.")
             return
@@ -465,7 +466,7 @@ class TournamentController:
 
     def end_round(self):
         """début du tournois avec le round 1"""
-        tournament_data = Tournament.load_from_file()
+        # tournament_data = Tournament.load_from_file()
         tournament_id = get_input("Enter the tournament ID to start Round 1: ").strip()
         try:
             tournament_id = int(tournament_id)
@@ -473,7 +474,7 @@ class TournamentController:
             display_message("Invalid ID. Please enter a valid number.")
             return
 
-        tournament = next((t for t in tournament_data if t.id == tournament_id), None)
+        tournament = next((t for t in self.tournaments if t.id == tournament_id), None)
         if not tournament:
             display_message("Tournament not found.")
             return
@@ -490,7 +491,7 @@ class TournamentController:
 
     def start_another_round(self):
         """Démarre un nouveau round du tournoi."""
-        tournaments = Tournament.load_from_file()
+        # tournaments = Tournament.load_from_file()
         tournament_id = get_input("Entrez l'ID du tournoi: ").strip()
         tournament_id = int(tournament_id)
 
@@ -500,7 +501,7 @@ class TournamentController:
             display_message("ID invalide. Veuillez entrer un nombre.")
             return
 
-        tournament = next((t for t in tournaments if t.id == tournament_id), None)
+        tournament = next((t for t in self.tournaments if t.id == tournament_id), None)
 
         if not tournament:
             display_message("Tournoi non trouvé.")
@@ -512,10 +513,10 @@ class TournamentController:
 
         # Création des paires pour le nouveau round
         # Charger tous les joueurs depuis le fichier
-        players_data = Player.load_from_file()
+        # players_data = Player.load_from_file()
 
         # Associer les joueurs du tournoi avec leurs scores
-        players_with_scores = [(player, player.score) for player in players_data if player.id in tournament.players]
+        players_with_scores = [(player, player.score) for player in self.players if player.id in tournament.players]
 
         # Trier par score (du plus élevé au plus bas)
         sorted_players = [player[0] for player in sorted(players_with_scores, key=lambda x: x[1], reverse=True)]
@@ -538,6 +539,6 @@ class TournamentController:
         tournament.rounds.append(new_round)
         tournament.current_round += 1  # Incrémente le numéro du round
 
-        Tournament.all_tournaments = tournaments
+        Tournament.all_tournaments = self.tournaments
         Tournament.save_data_tournament()
         display_message(f"Nouveau round {tournament.current_round} lancé avec succès!")
