@@ -31,9 +31,14 @@ class PlayerController:
             else:
                 self.view.display_message("Invalid choice.")
 
+    def player_id(self):
+        """id du joueur"""
+        player_id = get_input("Enter the ID of the player to modify: ")
+        player_id = int(player_id)
+        return player_id
+
     def add_new_player(self):
         """Create a player, save it in the database"""
-        # Player.load_from_file()
         last_name = get_input("Player's last name: ")
         first_name = get_input("Player's first name: ")
         while True:
@@ -50,9 +55,7 @@ class PlayerController:
     def modify_player(self, players):
         """Allows the user to modify the information of an existing player by entering his ID.
         If the user leaves a field empty, the old value is retained."""
-        player_id = get_input("Enter the ID of the player to modify: ")
-        player_id = int(player_id)
-        # players = Player.load_from_file()  # Load existing players
+        player_id = self.player_id()
 
         # Find the player to modify
         player_to_modify = next((p for p in self.players if p.id == player_id), None)
@@ -93,9 +96,7 @@ class PlayerController:
 
     def delete_player(self):
         """Deletes a player."""
-        player_id = get_input("\nEnter the ID of the player to be deleted: ")
-        player_id = int(player_id)
-        # players = Player.load_from_file()  # Load players before modification
+        player_id = self.player_id()
 
         # Check if the player exists
         player_to_delete = next((p for p in self.players if p.id == player_id), None)
