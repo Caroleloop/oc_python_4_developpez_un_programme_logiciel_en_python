@@ -28,11 +28,11 @@ class TournamentController:
             elif choice == "1-3":
                 self.create_first_round()
             elif choice == "2-1":
-                self.start_round_1()
+                self.start_round()
             elif choice == "2-2":
                 self.score_update()
             elif choice == "2-3":
-                self.start_another_round()
+                self.create_another_round()
             elif choice == "2-4":
                 self.end_of_tournament()
             elif choice == "3":
@@ -48,7 +48,7 @@ class TournamentController:
 
     def tournament_id(self):
         """Demander l'id du tournois"""
-        tournament_id = get_input("Enter tournament ID to add players: ").strip()
+        tournament_id = get_input("Enter tournament ID: ").strip()
         try:
             tournament_id = int(tournament_id)
         except ValueError:
@@ -89,7 +89,7 @@ class TournamentController:
     def add_players_to_the_tournament(self):
         """Add players to a given tournament based on their IDs"""
         tournament = self.tournament_id()
-        display_message(f"Add players to tournament {tournament.name_tournament} (ID: {tournament.id}).")
+        # display_message(f"Add players to tournament: {tournament.name_tournament} (ID: {tournament.id}).")
         display_message("Enter the IDs of the players to be added (type 'fin' to finish).")
 
         while True:
@@ -146,13 +146,13 @@ class TournamentController:
 
         round_1 = {
             "nom": "Round 1",
-            "date_debut": datetime.datetime.now().strftime("%Y-%m-%d %H:%M"),
+            "date_debut": "",
             "date_fin": "",
             "matches": matches,
         }
 
         tournament.rounds.append(round_1)
-        tournament.current_round = 1
+        # tournament.current_round = 0
 
         # Remplace l'ancien tournoi dans la liste des tournois
         for i, t in enumerate(self.tournaments):
@@ -250,6 +250,18 @@ class TournamentController:
             random.shuffle(players_list)
         return players_list
 
+    def shuffle_player_by_score(self, tournament_id):
+        """
+        Randomly shuffles the list of players to avoid any bias in pair formation.
+        """
+        for tournament in self.tournaments:
+            if tournament.id == tournament_id:
+                players_list = tournament.players
+
+        players_list = [p for p in self.players if p.id in tournament.players]
+        sorted_players = sorted(players_list, key=lambda x: x.score, reverse=True)
+        return sorted_players
+
     def create_pairs_round_1(self, players_list):
         """
         Generates player pairs for the first round according to random order.
@@ -261,18 +273,16 @@ class TournamentController:
         pairs = [(players_list[i], players_list[i + 1]) for i in range(0, len(players_list), 2)]
         return pairs
 
-    def creation_pairs_other_rounds(self):
+    def creation_pairs_other_rounds(self, tournament_id):
         """
         Generates player pairs for subsequent rounds based on scores.
 
         Returns:
             list[tuple]: A list of tuples representing player pairs.
         """
-        sorted_players_by_score = sorted(self.players_list, key=lambda x: x.score, reverse=True)
-        pairs = [
-            (sorted_players_by_score[i], sorted_players_by_score[i + 1])
-            for i in range(0, len(sorted_players_by_score), 2)
-        ]
+        sorted_players = self.shuffle_player_by_score(tournament_id)
+        pairs = [(sorted_players[i], sorted_players[i + 1]) for i in range(0, len(sorted_players), 2)]
+
         return pairs
 
     def draw_white_black(self, pairs):
@@ -331,6 +341,7 @@ class TournamentController:
 
     def display_tournament(self):
         """display tournament"""
+
         for tournament in self.tournaments:
             display_message(
                 f"\n\n\tID: {tournament.id}\n\t"
@@ -372,23 +383,34 @@ class TournamentController:
                     if player1_info and player2_info:
                         display_message(
                             f"\t\t\t{player1_info.first_name} {player1_info.last_name} "
-                            f"(ID: {player1_info.id}) score: {player1_info.score} - {colors[0]} vs "
+                            f"(ID: {player1_info.id}) score: {player1_info.score}  vs "
                             f"{player2_info.first_name} {player2_info.last_name} "
-                            f"(ID: {player2_info.id}) score: {player2_info.score} - {colors[1]}"
+                            f"(ID: {player2_info.id}) score: {player2_info.score} "
                         )
                     else:
                         display_message("\t\t\t- Invalid player data.")
 
-    def start_round_1(self):
+    def start_round(self):
         """début du tournois avec le round 1"""
         tournament = self.tournament_id()
 
-        round_1 = next((r for r in tournament.rounds if r["nom"] == "Round 1"), None)
-        if not round_1:
-            display_message("Le Round 1 n'a pas encore été créé.")
+        if not tournament.rounds:
+            display_message("Aucun round n'a encore été créé.")
             return
 
-        round_1["date_debut"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        latest_round = tournament.rounds[-1]
+
+        if "date_debut" in latest_round and latest_round["date_debut"]:
+            display_message(f"{latest_round['nom']} a déjà commencé.")
+            return
+
+        # round_1 = next((r for r in tournament.rounds if r["nom"] == "Round 1"), None)
+        # if not round_1:
+        #     display_message("Le Round 1 n'a pas encore été créé.")
+        #     return
+
+        latest_round["date_debut"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        tournament.current_round += 1
 
         Tournament.save_data_tournament()
         display_message("The first round has begun successfully!")
@@ -406,41 +428,38 @@ class TournamentController:
         Tournament.save_data_tournament()
         display_message("Round 1 off to a successful start!")
 
-    def start_another_round(self):
-        """Démarre un nouveau round du tournoi."""
+    def create_another_round(self):
+        """créer un nouveau round du tournoi."""
         tournament = self.tournament_id()
-
-        if tournament.current_round >= tournament.number_rounds:
-            display_message("Le tournoi est terminé, tous les rounds ont été joués.")
+        if len(tournament.players) < 2:
+            display_message("Not enough players to start the tournament.")
             return
 
-        # Création des paires pour le nouveau round
-        # Charger tous les joueurs depuis le fichier
-        # players_data = Player.load_from_file()
+        # # Check if Round 1 already exists
+        # if any(round_["nom"] == f"Round {tournament.current_round}" for round_ in tournament.rounds):
+        #     display_message("Round 1 has already been created.")
+        #     return
 
-        # Associer les joueurs du tournoi avec leurs scores
-        players_with_scores = [(player, player.score) for player in self.players if player.id in tournament.players]
+        players_list = self.shuffle_player(tournament.id)
+        pairs = self.create_pairs_round_1(players_list)
+        # matches = [[[p1, 0], [p2, 0]] for p1, p2 in pairs]
 
-        # Trier par score (du plus élevé au plus bas)
-        sorted_players = [player[0] for player in sorted(players_with_scores, key=lambda x: x[1], reverse=True)]
-        pairs = [(sorted_players[i], sorted_players[i + 1]) for i in range(0, len(sorted_players), 2)]
-
-        # Création des matchs
         matches = []
         for p1, p2 in pairs:
             colors = self.draw_white_black([(p1, p2)])[0]  # Assuming draw_white_black returns a list of pairs
-            matches.append([[p1, 0], [p2, 0], colors])  # Store players with initial score (0) and their colors
+            matches.append([[p1, 0], [p2, 0], colors])
+
+        tournament.current_round += 1
 
         # Création du nouveau round
         new_round = {
-            "nom": f"Round {tournament.current_round + 1}",
-            "date_debut": datetime.datetime.now().strftime("%Y-%m-%d %H:%M"),
+            "nom": f"Round {tournament.current_round}",
+            "date_debut": "",
             "date_fin": "",
             "matches": matches,
         }
 
         tournament.rounds.append(new_round)
-        tournament.current_round += 1  # Incrémente le numéro du round
 
         Tournament.all_tournaments = self.tournaments
         Tournament.save_data_tournament()

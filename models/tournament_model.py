@@ -7,7 +7,7 @@ class Tournament:
     all_tournaments = []
 
     def __init__(
-        self, name_tournament, location, start_date, end_date=(""), number_rounds=4, description="", current_round=1
+        self, name_tournament, location, start_date, end_date=(""), number_rounds=4, description="", current_round=0
     ):
         """initalizing a tournament"""
         Tournament.counter += 1

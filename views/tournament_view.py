@@ -36,9 +36,9 @@ class TournamentView:
 
     def display_starting_resuming(self):
         print("\nStarting / Resuming a tournament")
-        print("1. Start round 1")
+        print("1. Start round")
         print("2. Score update")
-        print("3. Start another round")
+        print("3. Create another round")
         print("4. End of tournament")
         print("5. Revenir au menu principal ")
 
