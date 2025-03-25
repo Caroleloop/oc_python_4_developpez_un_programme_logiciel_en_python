@@ -5,7 +5,7 @@ class ReportView:
         print("2. List of tournaments")
         print("3. Name and date of a given tournament")
         print("4. List of tournament players in alphabetical order")
-        print("5.List of tournament rounds and matches")
+        print("5. List of tournament rounds and matches")
         print("6. Return to main menu")
 
         while True:

@@ -33,7 +33,7 @@ class PlayerController:
 
     def player_id(self):
         """id du joueur"""
-        player_id = get_input("Enter the ID of the player to modify: ")
+        player_id = get_input("Enter the ID of the player: ")
         player_id = int(player_id)
         return player_id
 
@@ -146,7 +146,8 @@ class PlayerController:
                 f"Last name: {player.last_name}\n\t"
                 f"First name: {player.first_name}\n\t"
                 f"Birthdate: {player.birthdate}\n\t"
-                f"National chess identifier: {player.national_chess_identifier}\n\n"
+                f"National chess identifier: {player.national_chess_identifier}\n\t"
+                f"Score: {player.score}\n\n"
             )
 
 

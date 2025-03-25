@@ -65,7 +65,7 @@ class TournamentController:
         """Tournament creation"""
         name_tournament = get_input("\tTournament name: ").strip()
         location = get_input("\tTournament location: ").strip()
-        # number_rounds = get_input("\tNumber of tournament rounds: ")
+        start_date = get_input("\tStart date of the tournament:").strip()
         while True:
             number_rounds_input = get_input("\tNumber of tournament rounds (default: 4): ").strip()
 
@@ -83,7 +83,7 @@ class TournamentController:
 
         description = get_input("\tTournament description: ").strip()
 
-        new_tournament = Tournament(name_tournament, location, "", "", number_rounds, description)
+        new_tournament = Tournament(name_tournament, location, start_date, "", number_rounds, description)
         new_tournament.save_data_tournament()
 
     def add_players_to_the_tournament(self):
@@ -185,10 +185,12 @@ class TournamentController:
         # Display current information
         display_message(
             f"\nModifying tournament:\n\t "
-            f"{tournament.name_tournament}\n\t"
-            f"{tournament.location}\n\t"
-            f"{tournament.start_date} {tournament.number_rounds}\n\t"
-            f"{tournament.description}\n\t"
+            f"ID: {tournament.id}\n\t"
+            f"Tournament name: {tournament.name_tournament}\n\t"
+            f"Tournament location: {tournament.location}\n\t"
+            f"Start date: {tournament.start_date}\n\t"
+            f"Number of tournament rounds: {tournament.number_rounds}\n\t"
+            f"Tournament description: {tournament.description}\n\t"
         )
         display_message("Leave blank to keep the current value.")
 
@@ -331,7 +333,9 @@ class TournamentController:
         for match in current_round["matches"]:
             player1, player2, colors = match
             display_message(f"Match entre {player1[0]} et {player2[0]}")
-            result = get_input("Résultat (1: Joueur 1 gagne, 2: Joueur 2 gagne, draw: Égalité) : ")
+            result = get_input(
+                f"Résultat (1: Joueur {player1[0]} gagne, 2: Joueur {player2[0]} gagne, draw: Égalité) : "
+            )
 
             try:
                 self.match_controller.match_result(player1, player2, result, match)
@@ -343,10 +347,10 @@ class TournamentController:
 
             # Update round
             # current_round["date_fin"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+            display_message("Scores mis à jour et round terminé !\n")
+
             self.end_round(tournament)
             Tournament.save_data_tournament()
-
-            display_message("Scores mis à jour et round terminé !")
 
     def display_tournament(self):
         """display tournament"""
@@ -435,7 +439,7 @@ class TournamentController:
         current_round = next((r for r in tournament.rounds if not r["date_fin"]), None)
 
         if not current_round:
-            display_message("Tous les rounds ont déjà été terminés.")
+            display_message("\nTous les rounds ont déjà été terminés.")
             return
 
         # Marquer la fin du round
@@ -444,7 +448,7 @@ class TournamentController:
         # Vérifier si c'est le dernier round du tournoi
         if current_round["id"] == tournament.number_rounds:
             tournament.end_date = current_round["date_fin"]
-            display_message(f"🏆 Le tournoi '{tournament.name_tournament}' est terminé !")
+            display_message(f"\nLe tournoi '{tournament.name_tournament}' est terminé !")
         else:
             display_message(f"{current_round['nom']} terminé. Le tournoi continue.")
 
