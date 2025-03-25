@@ -44,15 +44,11 @@ class Tournament:
         file_path = os.path.join(os.getcwd(), filename)
 
         try:
-            # tournaments_data = [tournament.__dict__ for tournament in Tournament.all_tournaments]
-            # Write updated data to file
             with open(file_path, "w", encoding="utf-8") as file:
                 json.dump(
                     [tournament.__dict__ for tournament in Tournament.all_tournaments], file, indent=4, sort_keys=True
                 )
 
-            # with open(file_path, "w", encoding="utf-8") as file:
-            #     json.dump(tournaments_data, file, indent=4, sort_keys=True)
             return True
         except IOError as e:
             print(f"Error saving data: {e}")
@@ -75,8 +71,6 @@ class Tournament:
             with open(filename, "r", encoding="utf-8") as file:
                 data = json.load(file)
 
-            # Tournament.all_tournaments = []
-
             for tournament_data in data:
                 tournament = Tournament(
                     name_tournament=tournament_data["name_tournament"],
@@ -92,7 +86,6 @@ class Tournament:
                 tournament.players = tournament_data.get("players", [])
                 tournament.id = tournament_data["id"]
 
-            # return Tournament.all_tournaments
         except (json.JSONDecodeError, KeyError) as e:
             print(f"Error loading player data: {e}")
             return []

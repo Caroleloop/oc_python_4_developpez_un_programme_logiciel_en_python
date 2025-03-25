@@ -116,7 +116,6 @@ class PlayerController:
         )
 
         if confirmation == "y":
-            # players = [p for p in players if p.id != player_id]  # Delete player
             for i, p in enumerate(self.players):
                 if p.id == player_id:
                     del self.players[i]
@@ -127,19 +126,16 @@ class PlayerController:
 
     def sort_players_by_score(self, players):
         """Loads players from file and sorts them by score"""
-        # players_data = Player.load_from_file()
         sorted_players_by_score = sorted(players, key=lambda x: x.score, reverse=True)
         return sorted_players_by_score
 
     def sort_players_in_alphabetical_order(self):
         """Loads players from file and sorts them alphabetically (last name, first name)."""
-        # players = Player.load_from_file()
         sorted_players_by_last_name = sorted(self.players, key=lambda x: (x.last_name.lower(), x.first_name.lower()))
         return sorted_players_by_last_name
 
     def display_players(self):
         """display players"""
-        # players = Player.load_from_file()
         for player in self.players:
             display_message(
                 f"\tID: {player.id}\n\t"

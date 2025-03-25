@@ -85,8 +85,6 @@ class MatchController:
         with open(filename, "w", encoding="utf-8") as file:
             json.dump(players_data, file, indent=4)
 
-        # display_message(f"Updated score for the player {player_id}.")
-
 
 if __name__ == "__main__":
     controller = MatchController("Magnus", "Hikaru")

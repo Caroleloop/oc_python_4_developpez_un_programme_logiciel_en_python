@@ -87,7 +87,6 @@ class Player:
             if Player.all_players:
                 Player.counter = max(player.id for player in Player.all_players)
 
-            # return Player.all_players
         except (json.JSONDecodeError, KeyError) as e:
             print(f"Error loading player data: {e}")
             return []
