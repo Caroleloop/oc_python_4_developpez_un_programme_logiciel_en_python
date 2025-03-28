@@ -34,7 +34,7 @@ class TournamentController:
             elif choice == "2-3":
                 self.create_another_round()
             elif choice == "2-4":
-                self.end_of_tournament()
+                self.test()
             elif choice == "3":
                 self.modify_tournament()
             elif choice == "4":
@@ -83,24 +83,24 @@ class TournamentController:
 
         description = get_input("\tTournament description: ").strip()
 
-        new_tournament = Tournament(name_tournament, location, start_date, "", number_rounds, description)
-        new_tournament.save_data_tournament()
+        Tournament(name_tournament, location, start_date, "", number_rounds, description)
+        Tournament.save_data_tournament()
 
     def add_players_to_the_tournament(self):
         """Add players to a given tournament based on their IDs"""
         tournament = self.tournament_id()
-        # display_message(f"Add players to tournament: {tournament.name_tournament} (ID: {tournament.id}).")
-        display_message("Enter the IDs of the players to be added (type 'fin' to finish).")
+        display_message(f"Add players to tournament: {tournament.name_tournament} (ID: {tournament.id}).")
+        display_message("Enter the IDs of the players to be added (type 'end' to finish).")
 
         while True:
             player_id = get_input("Player ID to be added: ").strip()
 
-            if player_id.lower() == "fin":
+            if player_id.lower() == "end":
                 break  # Exits the loop if the user types “end”.
             try:
                 player_id = int(player_id)
             except ValueError:
-                display_message("Invalid input. Please enter a number or 'fin' to quit.")
+                display_message("Invalid input. Please enter a number or 'end' to quit.")
             # Check if the player exists
             player = next((p for p in self.players if p.id == player_id), None)
 
@@ -130,7 +130,7 @@ class TournamentController:
             return
 
         # Check if Round 1 already exists
-        if any(round_["nom"] == "Round 1" for round_ in tournament.rounds):
+        if any(round_["name"] == "Round 1" for round_ in tournament.rounds):
             display_message("Round 1 has already been created.")
             return
 
@@ -242,8 +242,6 @@ class TournamentController:
         """
         Randomly shuffles the list of players to avoid any bias in pair formation.
         """
-        # tournament_data = Tournament.load_from_file()
-
         for tournament in self.tournaments:
             if tournament.id == tournament_id:
                 players_list = tournament.players
@@ -261,9 +259,22 @@ class TournamentController:
             if tournament.id == tournament_id:
                 players_list = tournament.players
 
-        players_list = [p for p in self.players if p.id in tournament.players]
-        sorted_players = sorted(players_list, key=lambda x: x.score, reverse=True)
-        return sorted_players
+        # players_list = [p for p in self.players if p.id in tournament.players]
+        # players_list_by_score = sorted(players_list, key=lambda x: x.score, reverse=True)
+
+        scores = {player_id: 0 for player_id in players_list}
+
+        # Parcourir les rounds et matches pour accumuler les scores
+        for round_data in tournament.rounds:
+            for match in round_data["matches"]:
+                for player_score in match[:2]:  # Les deux premiers éléments sont [id, score]
+                    player_id, score = player_score
+                    scores[player_id] += score
+
+        # Trier les joueurs du plus fort au moins fort
+        players_list_by_score = sorted(players_list, key=lambda player: scores[player], reverse=True)
+
+        return players_list_by_score
 
     def create_pairs_round_1(self, players_list):
         """
@@ -276,17 +287,19 @@ class TournamentController:
         pairs = [(players_list[i], players_list[i + 1]) for i in range(0, len(players_list), 2)]
         return pairs
 
-    def creation_pairs_other_rounds(self, tournament_id):
+    def creation_pairs_other_rounds(self, players_list_by_score):
         """
         Generates player pairs for subsequent rounds based on scores.
 
         Returns:
             list[tuple]: A list of tuples representing player pairs.
         """
-        sorted_players = self.shuffle_player_by_score(tournament_id)
-        pairs = [(sorted_players[i], sorted_players[i + 1]) for i in range(0, len(sorted_players), 2)]
+        # shuffle_player_by_score = self.shuffle_player_by_score(tournament_id)
+        pairs_by_score = [
+            (players_list_by_score[i], players_list_by_score[i + 1]) for i in range(0, len(players_list_by_score), 2)
+        ]
 
-        return pairs
+        return pairs_by_score
 
     def draw_white_black(self, pairs):
         """
@@ -329,7 +342,7 @@ class TournamentController:
             player1, player2, colors = match
             display_message(f"Match between  {player1[0]} and {player2[0]}")
             result = get_input(
-                f"Result  (1: Player  {player1[0]} wins, 2: Player  {player2[0]} gawinsgne, draw: equality) : "
+                f"Result  (1: Player  {player1[0]} wins, 2: Player  {player2[0]} wins, draw: equality) : "
             )
 
             try:
@@ -376,7 +389,7 @@ class TournamentController:
             display_message("\tRounds: ")
             for round_ in tournament.rounds:
                 display_message(
-                    f"\t\t- {round_['name']}\n "
+                    f"\t\t{round_['name']}\n "
                     f"\t\t start round: {round_['start_date_round']}\n"
                     f"\t\t end round: {round_['end_date_round']}"
                 )
@@ -447,8 +460,8 @@ class TournamentController:
             display_message("Not enough players to start the tournament.")
             return
 
-        players_list = self.shuffle_player(tournament.id)
-        pairs = self.create_pairs_round_1(players_list)
+        players_list_score = self.shuffle_player_by_score(tournament.id)
+        pairs = self.creation_pairs_other_rounds(players_list_score)
 
         matches = []
         for p1, p2 in pairs:
@@ -467,6 +480,11 @@ class TournamentController:
         }
 
         tournament.rounds.append(new_round)
-        Tournament.all_tournaments = self.tournaments
+        for i, t in enumerate(self.tournaments):
+            if t.id == tournament.id:
+                self.tournaments[i] = tournament
+                break
+        # Tournament.all_tournaments = self.tournaments
         Tournament.save_data_tournament()
-        display_message(f"New round {tournament.current_round} successfully created!")
+
+        display_message(f"New round {round_id} successfully created!")

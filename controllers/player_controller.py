@@ -1,5 +1,5 @@
 import re
-
+from datetime import datetime
 
 from models.player_model import Player
 from views.player_view import PlayerView
@@ -33,7 +33,7 @@ class PlayerController:
 
     def player_id(self):
         """id du joueur"""
-        player_id = get_input("Enter the ID of the player: ")
+        player_id = get_input("\nEnter the ID of the player: ")
         player_id = int(player_id)
         return player_id
 
@@ -44,9 +44,22 @@ class PlayerController:
         while True:
             birthdate = get_input("Birthdate (YYYY-MM-DD): ")
             if re.match(r"\d{4}-\d{2}-\d{2}", birthdate):
-                break
+                try:
+                    datetime.strptime(birthdate, "%Y-%m-%d")
+                    break
+                except ValueError:
+                    display_message("Invalid date. This date does not exist.")
+
             display_message("Invalid date format. Use YYYY-MM-DD.")
-        national_chess_identifier = get_input("National chess identifier: ")
+        # national_chess_identifier = get_input("National chess identifier: ")
+        while True:
+            national_chess_identifier = get_input("National chess identifier: ").strip()
+            if re.match(r"^[A-Z]{2}\d{5}$", national_chess_identifier):
+                break  # Identifiant valide, on sort de la boucle
+            else:
+                display_message(
+                    "Invalid identifier. Expected format: two letters followed by five digits (e.g. AB12345)."
+                )
 
         new_player = Player(last_name, first_name, birthdate, national_chess_identifier, score=0)
         Player.save_data_players()
@@ -76,9 +89,26 @@ class PlayerController:
         new_last_name = get_input(f"New last name ({player_to_modify.last_name}): ").strip()
         new_first_name = get_input(f"New first name ({player_to_modify.first_name}): ").strip()
         new_birthdate = get_input(f"New birthdate ({player_to_modify.birthdate}): ").strip()
+        if new_birthdate:
+            if re.match(r"\d{4}-\d{2}-\d{2}", new_birthdate):
+                try:
+                    datetime.strptime(new_birthdate, "%Y-%m-%d")
+                    player_to_modify.birthdate = new_birthdate
+                except ValueError:
+                    display_message("Invalid date. This date does not exist.")
+            else:
+                display_message("Invalid date format. Use YYYY-MM-DD.")
+
         new_identifier = get_input(
             f"New national chess identifier ({player_to_modify.national_chess_identifier}): "
         ).strip()
+        if new_identifier:
+            if re.match(r"^[A-Z]{2}\d{5}$", new_identifier):
+                player_to_modify.national_chess_identifier = new_identifier
+            else:
+                display_message(
+                    "Invalid identifier. Expected format: two letters followed by five digits (e.g. AB12345)."
+                )
 
         # Update information if a new value is provided
         if new_last_name:
