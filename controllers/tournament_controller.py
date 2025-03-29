@@ -353,10 +353,10 @@ class TournamentController:
                 display_message(str(e))
                 return
 
-            display_message("Scores updated and round over!\n")
+        display_message("Scores updated and round over!\n")
 
-            self.end_tournament(tournament)
-            Tournament.save_data_tournament()
+        self.end_tournament(tournament)
+        Tournament.save_data_tournament()
 
     def display_tournament(self):
         """display tournament"""
