@@ -9,8 +9,6 @@ from models.tournament_model import Tournament
 class TournoiApp:
     def __init__(self):
         self.menu_view = MenuView
-        self.player_controller = PlayerController(players=[])
-        self.tournament_controller = TournamentController(tournaments=[], players=[])
         self.report_controller = ReportController()
 
         self.players = Player.load_data_players()

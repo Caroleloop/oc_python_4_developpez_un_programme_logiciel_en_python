@@ -17,6 +17,7 @@ class TournamentController:
         self.round_controller = RoundController()
         self.tournaments = tournaments
         self.players = players
+        self.past_matches = set()
 
     def tournament_management(self):
         while True:
@@ -33,8 +34,6 @@ class TournamentController:
                 self.score_update()
             elif choice == "2-3":
                 self.create_another_round()
-            elif choice == "2-4":
-                self.test()
             elif choice == "3":
                 self.modify_tournament()
             elif choice == "4":
@@ -54,7 +53,7 @@ class TournamentController:
         except ValueError:
             display_message("Invalid input. Please enter a number.")
             return None
-        tournament = next((t for t in self.tournaments if t.id == tournament_id), None)
+        tournament = next((t for t in Tournament.all_tournaments if t.id == tournament_id), None)
 
         if not tournament:
             display_message("Tournament not found.")
@@ -143,6 +142,8 @@ class TournamentController:
         for p1, p2 in pairs:
             colors = self.draw_white_black([(p1, p2)])[0]  # Assuming draw_white_black returns a list of pairs
             matches.append([[p1, 0], [p2, 0], colors])  # Store players with initial score (0) and their colors
+            for match in matches:
+                self.past_matches.add((match[0][0], match[1][0]))
 
         round_id = 1
         round_1 = {
@@ -259,19 +260,14 @@ class TournamentController:
             if tournament.id == tournament_id:
                 players_list = tournament.players
 
-        # players_list = [p for p in self.players if p.id in tournament.players]
-        # players_list_by_score = sorted(players_list, key=lambda x: x.score, reverse=True)
-
         scores = {player_id: 0 for player_id in players_list}
 
-        # Parcourir les rounds et matches pour accumuler les scores
         for round_data in tournament.rounds:
             for match in round_data["matches"]:
-                for player_score in match[:2]:  # Les deux premiers éléments sont [id, score]
+                for player_score in match[:2]:
                     player_id, score = player_score
                     scores[player_id] += score
 
-        # Trier les joueurs du plus fort au moins fort
         players_list_by_score = sorted(players_list, key=lambda player: scores[player], reverse=True)
 
         return players_list_by_score
@@ -294,11 +290,40 @@ class TournamentController:
         Returns:
             list[tuple]: A list of tuples representing player pairs.
         """
-        # shuffle_player_by_score = self.shuffle_player_by_score(tournament_id)
-        pairs_by_score = [
-            (players_list_by_score[i], players_list_by_score[i + 1]) for i in range(0, len(players_list_by_score), 2)
-        ]
 
+        # shuffle_player_by_score = self.shuffle_player_by_score(tournament_id)
+        pairs_by_score = []
+        joueurs_deja_associes = set(self.past_matches)  # Copier les paires déjà jouées
+
+        joueurs_utilises = set()  # Liste des joueurs déjà affectés à un match
+
+        i = 0
+        while i < len(players_list_by_score):
+            joueur_1 = players_list_by_score[i]
+
+            if joueur_1 in joueurs_utilises:
+                i += 1
+                continue
+
+            # Chercher un joueur avec qui il n'a pas encore joué
+            for j in range(i + 1, len(players_list_by_score)):
+                joueur_2 = players_list_by_score[j]
+
+                if joueur_2 in joueurs_utilises:
+                    continue
+
+                paire = (joueur_1, joueur_2)
+                paire_inverse = (joueur_2, joueur_1)
+
+                paire = (joueur_1, joueur_2)
+                if paire not in joueurs_deja_associes and paire_inverse not in joueurs_deja_associes:
+                    pairs_by_score.append(paire)
+                    self.past_matches.add(paire)  # Ajouter la paire entière aux matchs passés
+                    joueurs_utilises.add(joueur_1)
+                    joueurs_utilises.add(joueur_2)
+                    break  # On a trouvé un match pour joueur_1, on passe au suivant
+
+            i += 1  # Passer au joueur suivant
         return pairs_by_score
 
     def draw_white_black(self, pairs):
@@ -427,7 +452,7 @@ class TournamentController:
         tournament.current_round += 1
 
         Tournament.save_data_tournament()
-        display_message("The first round has begun successfully!")
+        display_message("The round has begun successfully!")
 
     def end_tournament(self, tournament):
         """Ends the tournament if it was the last round."""
@@ -467,6 +492,8 @@ class TournamentController:
         for p1, p2 in pairs:
             colors = self.draw_white_black([(p1, p2)])[0]
             matches.append([[p1, 0], [p2, 0], colors])
+            for match in matches:
+                self.past_matches.add((match[0][0], match[1][0]))
 
         round_id = len(tournament.rounds) + 1
 

@@ -85,6 +85,19 @@ class MatchController:
         with open(filename, "w", encoding="utf-8") as file:
             json.dump(players_data, file, indent=4)
 
+    def charger_matchs_joues(self):
+        """Charge les matchs déjà joués depuis un fichier JSON."""
+        try:
+            with open(self.fichier_json, "r") as file:
+                data = json.load(file)
+                matchs_joues = set()
+                for round in data.get("rounds", []):
+                    for match in round:
+                        matchs_joues.add(tuple(match))
+                return matchs_joues
+        except (FileNotFoundError, json.JSONDecodeError):
+            return set()
+
 
 if __name__ == "__main__":
     controller = MatchController("Magnus", "Hikaru")
