@@ -385,6 +385,8 @@ class TournamentController:
 
     def display_tournament(self):
         """display tournament"""
+        Player.load_data_players()
+        Tournament.load_data_tournaments()
 
         for tournament in Tournament.all_tournaments:
             display_message(
@@ -424,7 +426,7 @@ class TournamentController:
                     player1_info = next((p for p in Player.all_players if p.id == player1[0]), None)
                     player2_info = next((p for p in Player.all_players if p.id == player2[0]), None)
 
-                    color_info = color[0]  # Obtenir le dictionnaire de couleurs
+                    color_info = color[0]
                     color1 = "white" if color_info.get(str(player1_info.id)) == "white" else "black"
                     color2 = "white" if color_info.get(str(player2_info.id)) == "white" else "black"
 
@@ -432,16 +434,15 @@ class TournamentController:
 
                         display_message(
                             f"\t\t\t{player1_info.first_name} {player1_info.last_name} "
-                            f"(ID: {player1_info.id}), color: {color1},   score: {player1_info.score}  vs "
+                            f"(ID: {player1_info.id}), color: {color1},   score: {player1[1]}  vs "
                             f"{player2_info.first_name} {player2_info.last_name} "
-                            f"(ID: {player2_info.id}), color: {color2},  score: {player2_info.score} "
+                            f"(ID: {player2_info.id}), color: {color2},  score: {player2[1]} "
                         )
                     else:
                         display_message("\t\t\t- Invalid player data.")
 
     def start_round(self, tournament):
         """Tournament starts with round 1"""
-        # tournament = self.tournament_id()
 
         if not tournament.rounds:
             display_message("No round has yet been created.")
@@ -455,7 +456,6 @@ class TournamentController:
 
         latest_round["start_date_round"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
         tournament.current_round += 1
-
         Tournament.save_data_tournament()
 
     def end_tournament(self, tournament):
@@ -465,17 +465,17 @@ class TournamentController:
             display_message("No round found for this tournament.")
             return
 
-        # Trouver le dernier round en cours (celui qui n'a pas encore de date de fin)
+        # Find the last round in progress (the one that doesn't yet have an end date)
         current_round = next((r for r in tournament.rounds if not r["end_date_round"]), None)
 
         if not current_round:
             display_message("\nAll rounds have already been completed.")
             return
 
-        # Marquer la fin du round
+        # Mark the end of the round
         current_round["end_date_round"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
 
-        # Vérifier si c'est le dernier round du tournoi
+        # Check if this is the last round of the tournament
         if current_round["id"] == tournament.number_rounds:
             tournament.end_date = current_round["end_date_round"]
             display_message(f"\nThe tournament '{tournament.name_tournament}' is finished!")
@@ -515,9 +515,7 @@ class TournamentController:
             if t.id == tournament.id:
                 Tournament.all_tournaments[i] = tournament
                 break
-        # Tournament.all_tournaments = Tournament.all_tournaments
 
         self.start_round(tournament)
         Tournament.save_data_tournament()
-
-        display_message(f"New round {round_id} successfully created!")
+        display_message(f"Round {round_id} has been successfully created!")
