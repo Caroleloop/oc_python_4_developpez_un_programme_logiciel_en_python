@@ -10,7 +10,7 @@ from views.utile import get_input, display_message
 class PlayerController:
     def __init__(self, players):
         """Controller to manage players."""
-        self.players = players
+        Player.all_players = players
         self.player_model = Player
         self.view = PlayerView()
         self.menu_view = MenuView()
@@ -21,7 +21,7 @@ class PlayerController:
             if choice == "1":
                 self.add_new_player()
             elif choice == "2":
-                self.modify_player(self.players)
+                self.modify_player(Player.all_players)
             elif choice == "3":
                 self.delete_player()
             elif choice == "4":
@@ -71,7 +71,7 @@ class PlayerController:
         player_id = self.player_id()
 
         # Find the player to modify
-        player_to_modify = next((p for p in self.players if p.id == player_id), None)
+        player_to_modify = next((p for p in Player.all_players if p.id == player_id), None)
         if not player_to_modify:
             display_message("Player not found.")
             return
@@ -129,7 +129,7 @@ class PlayerController:
         player_id = self.player_id()
 
         # Check if the player exists
-        player_to_delete = next((p for p in self.players if p.id == player_id), None)
+        player_to_delete = next((p for p in Player.all_players if p.id == player_id), None)
 
         if not player_to_delete:
             display_message("\nPlayer not found.")
@@ -146,9 +146,9 @@ class PlayerController:
         )
 
         if confirmation == "y":
-            for i, p in enumerate(self.players):
+            for i, p in enumerate(Player.all_players):
                 if p.id == player_id:
-                    del self.players[i]
+                    del Player.all_players[i]
             Player.save_data_players()
             display_message("\nPlayer successfully deleted.")
         else:
@@ -161,12 +161,14 @@ class PlayerController:
 
     def sort_players_in_alphabetical_order(self):
         """Loads players from file and sorts them alphabetically (last name, first name)."""
-        sorted_players_by_last_name = sorted(self.players, key=lambda x: (x.last_name.lower(), x.first_name.lower()))
+        sorted_players_by_last_name = sorted(
+            Player.all_players, key=lambda x: (x.last_name.lower(), x.first_name.lower())
+        )
         return sorted_players_by_last_name
 
     def display_players(self):
         """display players"""
-        for player in self.players:
+        for player in Player.all_players:
             display_message(
                 f"\tID: {player.id}\n\t"
                 f"Last name: {player.last_name}\n\t"

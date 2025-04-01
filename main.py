@@ -13,8 +13,8 @@ class TournoiApp:
 
         self.players = Player.load_data_players()
         self.tournaments = Tournament.load_data_tournaments()
-        self.player_controller = PlayerController(self.players)
-        self.tournament_controller = TournamentController(self.tournaments, self.players)
+        self.player_controller = PlayerController(Player.all_players)
+        self.tournament_controller = TournamentController(Tournament.all_tournaments, Player.all_players)
         self.report_controller = ReportController()
 
     def run(self):

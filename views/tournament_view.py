@@ -23,20 +23,19 @@ class TournamentView:
         print("\nCreate a tournament")
         print("1. Tournament information (name, location, ...)")
         print("2. Add players")
-        print("3. Create Round 1")
-        print("4. Return to previous menu")
+        print("3. Return to previous menu")
 
         while True:
             sub_choice = input("Your choice: ")
-            if sub_choice in {"1", "2", "3"}:
+            if sub_choice in {"1", "2"}:
                 return f"1-{sub_choice}"
-            elif sub_choice == "4":
+            elif sub_choice == "3":
                 return self.display_tournament_menu()
-            print("\nInvalid choice, please enter a number between 1 and 4.")
+            print("\nInvalid choice, please enter a number between 1 and 3.")
 
     def display_starting_resuming(self):
         print("\nStarting / Resuming a tournament")
-        print("1. Start round")
+        print("1. Create Round 1")
         print("2. Score update")
         print("3. Create another round")
         print("4. Revenir au menu principal ")
