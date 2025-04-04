@@ -65,7 +65,7 @@ class PlayerController:
         Player.save_data_players()
         return new_player
 
-    def modify_player(self, players):
+    def modify_player(self):
         """Allows the user to modify the information of an existing player by entering his ID.
         If the user leaves a field empty, the old value is retained."""
         player_id = self.player_id()
@@ -159,16 +159,16 @@ class PlayerController:
         sorted_players_by_score = sorted(players, key=lambda x: x.score, reverse=True)
         return sorted_players_by_score
 
-    def sort_players_in_alphabetical_order(self):
+    @staticmethod
+    def sort_players_in_alphabetical_order(players):
         """Loads players from file and sorts them alphabetically (last name, first name)."""
-        sorted_players_by_last_name = sorted(
-            Player.all_players, key=lambda x: (x.last_name.lower(), x.first_name.lower())
-        )
+        sorted_players_by_last_name = sorted(players, key=lambda x: (x.last_name.lower(), x.first_name.lower()))
         return sorted_players_by_last_name
 
-    def display_players(self):
+    @staticmethod
+    def display_players(players):
         """display players"""
-        for player in Player.all_players:
+        for player in players:
             display_message(
                 f"\tID: {player.id}\n\t"
                 f"Last name: {player.last_name}\n\t"

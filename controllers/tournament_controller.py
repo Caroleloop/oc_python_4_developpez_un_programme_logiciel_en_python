@@ -43,7 +43,8 @@ class TournamentController:
             else:
                 print("choice invalide.")
 
-    def tournament_id(self):
+    @staticmethod
+    def tournament_id():
         """Request tournament id"""
         tournament_id = get_input("Enter tournament ID: ").strip()
         try:
@@ -383,7 +384,8 @@ class TournamentController:
         self.end_tournament(tournament)
         Tournament.save_data_tournament()
 
-    def display_tournament(self):
+    @staticmethod
+    def display_tournament():
         """display tournament"""
         Player.load_data_players()
         Tournament.load_data_tournaments()
