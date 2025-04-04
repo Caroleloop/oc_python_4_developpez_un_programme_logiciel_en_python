@@ -3,14 +3,16 @@ from controllers.player_controller import PlayerController
 from models.player_model import Player
 from controllers.tournament_controller import TournamentController
 from views.utile import display_message
+from models.tournament_model import Tournament
 
 
 class ReportController:
-    def __init__(self):
+    def __init__(self, tournaments):
         self.view = ReportView()
         self.player_controller = PlayerController
         self.tournament_controller = TournamentController
         self.player_model = Player
+        Tournament.all_tournaments = tournaments
 
     def display_reports(self):
         while True:
@@ -38,7 +40,16 @@ class ReportController:
 
     def list_tournaments(self):
         """display tournament list"""
-        print("Displaying list of tournaments... (to be implemented)")
+        for tournament in Tournament.all_tournaments:
+            display_message(
+                f"\n\n\tID: {tournament.id}\n\t"
+                f"Tournament name: {tournament.name_tournament}\n\t"
+                f"Tournament location: {tournament.location}\n\t"
+                f"Start date: {tournament.start_date}\n\t"
+                f"Number of tournament rounds: {tournament.number_rounds}\n\t"
+                f"Tournament description: {tournament.description}\n\t"
+                f"End date: {tournament.end_date}\n\t"
+            )
 
     def tournament_details(self):
         """display name and dates of a given tournament"""

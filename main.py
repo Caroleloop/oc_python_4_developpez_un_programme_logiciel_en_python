@@ -9,13 +9,11 @@ from models.tournament_model import Tournament
 class TournoiApp:
     def __init__(self):
         self.menu_view = MenuView
-        self.report_controller = ReportController()
-
         self.players = Player.load_data_players()
         self.tournaments = Tournament.load_data_tournaments()
         self.player_controller = PlayerController(Player.all_players)
         self.tournament_controller = TournamentController(Tournament.all_tournaments, Player.all_players)
-        self.report_controller = ReportController()
+        self.report_controller = ReportController(Tournament.all_tournaments)
 
     def run(self):
         while True:
