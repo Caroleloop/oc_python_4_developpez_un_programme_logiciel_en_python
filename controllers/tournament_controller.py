@@ -295,7 +295,6 @@ class TournamentController:
         # shuffle_player_by_score = self.shuffle_player_by_score(tournament_id)
         pairs_by_score = []
         joueurs_deja_associes = set(self.past_matches)  # Copier les paires déjà jouées
-
         joueurs_utilises = set()  # Liste des joueurs déjà affectés à un match
 
         i = 0
@@ -387,9 +386,6 @@ class TournamentController:
     @staticmethod
     def display_tournament():
         """display tournament"""
-        Player.load_data_players()
-        Tournament.load_data_tournaments()
-
         for tournament in Tournament.all_tournaments:
             display_message(
                 f"\n\n\tID: {tournament.id}\n\t"
