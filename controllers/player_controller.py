@@ -31,7 +31,8 @@ class PlayerController:
             else:
                 self.view.display_message("Invalid choice.")
 
-    def player_id(self):
+    @staticmethod
+    def player_id():
         """id du joueur"""
         player_id = get_input("\nEnter the ID of the player: ")
         player_id = int(player_id)

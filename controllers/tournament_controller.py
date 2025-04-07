@@ -5,6 +5,7 @@ from models.tournament_model import Tournament
 from models.player_model import Player
 from controllers.match_controller import MatchController
 from controllers.round_controller import RoundController
+from controllers.player_controller import PlayerController
 from views.utile import get_input, display_message
 
 
@@ -13,8 +14,9 @@ class TournamentController:
         self.view = TournamentView()
         self.model = Tournament
         self.player_model = Player
-        self.match_controller = MatchController()
-        self.round_controller = RoundController()
+        self.match_controller = MatchController
+        self.round_controller = RoundController
+        self.player_controller = PlayerController
         Tournament.all_tournaments = tournaments
         Player.all_players = players
         self.past_matches = set()
@@ -26,6 +28,8 @@ class TournamentController:
                 self.create_tournament()
             elif choice == "1-2":
                 self.add_players_to_the_tournament()
+            elif choice == "1-3":
+                self.delete_player_to_the_tournament()
             elif choice == "2-1":
                 self.create_first_round()
             elif choice == "2-2":
@@ -46,18 +50,33 @@ class TournamentController:
     @staticmethod
     def tournament_id():
         """Request tournament id"""
-        tournament_id = get_input("Enter tournament ID: ").strip()
-        try:
-            tournament_id = int(tournament_id)
-        except ValueError:
-            display_message("Invalid input. Please enter a number.")
+        if not Tournament.all_tournaments:
+            display_message("No tournaments found.")
             return None
-        tournament = next((t for t in Tournament.all_tournaments if t.id == tournament_id), None)
 
-        if not tournament:
-            display_message("Tournament not found.")
-            return
-        return tournament
+        for tournament in Tournament.all_tournaments:
+            display_message(
+                f"ID: {tournament.id} | Name: {tournament.name_tournament} | Location: {tournament.location}"
+                f"| Start date: {tournament.start_date} | End date: {tournament.end_date}"
+            )
+
+        while True:
+            tournament_id = get_input("Enter the ID of the tournament you want to select: (or 'q' to quit): ").strip()
+            if tournament_id.lower() == "q":
+                return None
+
+            try:
+                tournament_id = int(tournament_id)
+            except ValueError:
+                display_message("Invalid input. Please enter a number.")
+                continue
+
+            tournament = next((t for t in Tournament.all_tournaments if t.id == tournament_id), None)
+
+            if tournament:
+                return tournament
+            else:
+                display_message("Tournament not found. Please try again.")
 
     def create_tournament(self):
         """Tournament creation"""
@@ -81,12 +100,23 @@ class TournamentController:
 
         description = get_input("\tTournament description: ").strip()
 
-        Tournament(name_tournament, location, start_date, "", number_rounds, description)
+        tournament = Tournament(name_tournament, location, start_date, "", number_rounds, description)
         Tournament.save_data_tournament()
 
-    def add_players_to_the_tournament(self):
+        add_player = get_input("\n\tDo you want to add players to the tournament? (y/n):")
+        if add_player == "y":
+            self.add_players_to_the_tournament(tournament)
+        else:
+            display_message("\n\tYou can add players later using the 'Add players to the tournament' option.")
+
+    def add_players_to_the_tournament(self, tournament=None):
         """Add players to a given tournament based on their IDs"""
-        tournament = self.tournament_id()
+        if tournament is None:
+            tournament = self.tournament_id()
+            if tournament is None:
+                display_message("Action cancelled.")
+                return
+
         display_message(f"Add players to tournament: {tournament.name_tournament} (ID: {tournament.id}).")
         display_message("Enter the IDs of the players to be added (type 'end' to finish).")
 
@@ -119,12 +149,62 @@ class TournamentController:
         Tournament.save_data_tournament()
         display_message("All players have been added to the tournament.")
 
+    def delete_player_to_the_tournament(self, tournament=None):
+        """suprimer un joueur du tournois"""
+        if tournament is None:
+            tournament = self.tournament_id()
+            if tournament is None:
+                display_message("Action cancelled.")
+                return
+
+        display_message(f"Delete players to tournament: {tournament.name_tournament} (ID: {tournament.id}).")
+
+        for player_id in tournament.players:
+            player = next((p for p in Player.all_players if p.id == player_id), None)
+            if player:
+                display_message(f"ID: {player.id} | Last name: {player.last_name}  | First name: {player.first_name}")
+
+        player_id = int(get_input("Quel est l'id du joueur à supprimer?:").strip())
+        print(player_id)
+        # Check if the player exists
+
+        if player_id not in tournament.players:
+            display_message("\nJoueur non trouvé dans ce tournoi.")
+            return
+
+        player = next((p for p in Player.all_players if p.id == player_id), None)
+        if not player:
+            display_message("\nJoueur non trouvé dans la base de données.")
+            return
+
+        # Request confirmation
+        confirmation = (
+            get_input(f"\nAre you sure you want to delete {player.last_name} {player.first_name}?" f"(y/n): ")
+            .strip()
+            .lower()
+        )
+
+        if confirmation == "y":
+            tournament.players.remove(player_id)
+            display_message("\nPlayer successfully deleted.")
+        else:
+            display_message("\nDeletion cancelled.")
+
+        Tournament.save_data_tournament()
+
     def create_first_round(self):
         """Creates the first round of the tournament by randomly generating pairs of players."""
         tournament = self.tournament_id()
         # check that the tournament has players
         if len(tournament.players) < 2:
             display_message("Not enough players to start the tournament.")
+            return
+
+        if len(tournament.players) % 2 != 0:
+            display_message(
+                "\nThe number of players is odd. An even number even to create tournament matches."
+                "Please add or remove a player."
+            )
             return
 
         # Check if Round 1 already exists
@@ -134,7 +214,6 @@ class TournamentController:
 
         players_list = self.shuffle_player(tournament.id)
         pairs = self.create_pairs_round_1(players_list)
-        # matches = [[[p1, 0], [p2, 0]] for p1, p2 in pairs]
         matches = []
 
         # For each pair, we determine the colors (White or Black)
@@ -315,13 +394,20 @@ class TournamentController:
                 paire = (joueur_1, joueur_2)
                 paire_inverse = (joueur_2, joueur_1)
 
-                paire = (joueur_1, joueur_2)
                 if paire not in joueurs_deja_associes and paire_inverse not in joueurs_deja_associes:
                     pairs_by_score.append(paire)
                     self.past_matches.add(paire)  # Ajouter la paire entière aux matchs passés
                     joueurs_utilises.add(joueur_1)
                     joueurs_utilises.add(joueur_2)
                     break  # On a trouvé un match pour joueur_1, on passe au suivant
+
+                joueurs_restants = [j for j in players_list_by_score if j not in joueurs_utilises]
+                if len(joueurs_restants) == 2 and joueur_1 in joueurs_restants and joueur_2 in joueurs_restants:
+                    pairs_by_score.append(paire)
+                    self.past_matches.add(paire)
+                    joueurs_utilises.add(joueur_1)
+                    joueurs_utilises.add(joueur_2)
+                    break
 
             i += 1  # Passer au joueur suivant
         return pairs_by_score
@@ -346,7 +432,7 @@ class TournamentController:
                 assigned_pairs.append({player2: "white", player1: "black"})  # player2 gets white, player1 gets black
         return assigned_pairs
 
-    def score_update(self):
+    def score_update(self, tournament=None):
         """
         Updates player scores after a match and updates the current round.
         """
@@ -386,6 +472,9 @@ class TournamentController:
     @staticmethod
     def display_tournament():
         """display tournament"""
+        Player.load_data_players()
+        Tournament.load_data_tournaments()
+
         for tournament in Tournament.all_tournaments:
             display_message(
                 f"\n\n\tID: {tournament.id}\n\t"
@@ -394,7 +483,7 @@ class TournamentController:
                 f"Start date: {tournament.start_date}\n\t"
                 f"Number of tournament rounds: {tournament.number_rounds}\n\t"
                 f"Tournament description: {tournament.description}\n\t"
-                f"End date: {tournament.end_date}\n\t"
+                f"End date: {tournament.end_date}"
             )
             display_message("\tPlayers: ")
             for player_id in tournament.players:
@@ -432,9 +521,9 @@ class TournamentController:
 
                         display_message(
                             f"\t\t\t{player1_info.first_name} {player1_info.last_name} "
-                            f"(ID: {player1_info.id}), color: {color1},   score: {player1[1]}  vs "
+                            f"(ID: {player1_info.id}), color: {color1}, score: {player1[1]}  vs "
                             f"{player2_info.first_name} {player2_info.last_name} "
-                            f"(ID: {player2_info.id}), color: {color2},  score: {player2[1]} "
+                            f"(ID: {player2_info.id}), color: {color2}, score: {player2[1]} "
                         )
                     else:
                         display_message("\t\t\t- Invalid player data.")
@@ -458,7 +547,6 @@ class TournamentController:
 
     def end_tournament(self, tournament):
         """Ends the tournament if it was the last round."""
-
         if not tournament.rounds:
             display_message("No round found for this tournament.")
             return
@@ -486,6 +574,13 @@ class TournamentController:
         if len(tournament.players) < 2:
             display_message("Not enough players to start the tournament.")
             return
+
+        # checks whether the last round has been completed
+        if tournament.rounds:
+            last_round = tournament.rounds[-1]
+            if not last_round["end_date_round"]:
+                display_message("You must end the previous round before starting a new one.")
+                return
 
         players_list_score = self.shuffle_player_by_score(tournament.id)
         pairs = self.creation_pairs_other_rounds(players_list_score)
