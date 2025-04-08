@@ -107,7 +107,7 @@ class TournamentController:
         if add_player == "y":
             self.add_players_to_the_tournament(tournament)
         else:
-            display_message("\n\tYou can add players later using the 'Add players to the tournament' option.")
+            display_message("\n\tYou can add players later using the 'Add players' option.")
 
     def add_players_to_the_tournament(self, tournament=None):
         """Add players to a given tournament based on their IDs"""
@@ -179,7 +179,7 @@ class TournamentController:
 
         # Request confirmation
         confirmation = (
-            get_input(f"\nAre you sure you want to delete {player.last_name} {player.first_name}?" f"(y/n): ")
+            get_input(f"\nAre you sure you want to delete {player.last_name} {player.first_name}? (y/n): ")
             .strip()
             .lower()
         )
@@ -452,9 +452,16 @@ class TournamentController:
         for match in current_round["matches"]:
             player1, player2, colors = match
             display_message(f"Match between  {player1[0]} and {player2[0]}")
-            result = get_input(
-                f"Result  (1: Player  {player1[0]} wins, 2: Player  {player2[0]} wins, draw: equality) : "
-            )
+
+            valid_responses = ["1", "2", "draw"]
+            result = None
+
+            while result not in valid_responses:
+                result = get_input(
+                    f"Result  (1: Player  {player1[0]} wins, 2: Player  {player2[0]} wins, draw: equality) : "
+                )
+                if result not in valid_responses:
+                    display_message("Invalid input. Please enter '1', '2', or 'draw'.")
 
             try:
                 self.match_controller.match_result(player1, player2, result, match)
@@ -504,10 +511,10 @@ class TournamentController:
             for round_ in tournament.rounds:
                 display_message(
                     f"\t\t{round_['name']}:\n "
-                    f"\t\tstart round: {round_['start_date_round']}\n"
-                    f"\t\tend round: {round_['end_date_round']}"
+                    f"\t\tStart round: {round_['start_date_round']}\n"
+                    f"\t\tEnd round: {round_['end_date_round']}"
                 )
-                display_message("\t\t Matches: ")
+                display_message("\t\tMatches: ")
                 for match in round_["matches"]:
                     player1, player2, color = match
                     player1_info = next((p for p in Player.all_players if p.id == player1[0]), None)
@@ -579,7 +586,7 @@ class TournamentController:
         if tournament.rounds:
             last_round = tournament.rounds[-1]
             if not last_round["end_date_round"]:
-                display_message("You must end the previous round before starting a new one.")
+                display_message("\nYou must end the previous round before starting a new one.")
                 return
 
         players_list_score = self.shuffle_player_by_score(tournament.id)

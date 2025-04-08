@@ -16,7 +16,8 @@ class MatchController:
         self.match_model(player_1, player_2)
         display_message(f"Match créé entre {player_1} et {player_2}.")
 
-    def match_result(self, player1, player2, result, match):
+    @staticmethod
+    def match_result(player1, player2, result, match):
         """Gives the results of the match:
         the winner receives 1 point,
         the loser receives 0 points,
@@ -62,7 +63,8 @@ class MatchController:
         except Exception as e:
             display_message(f"Error when recording scores : {e}")
 
-    def update_player_score(self, player_id, score, filename="data_players.json"):
+    @staticmethod
+    def update_player_score(player_id, score, filename="data_players.json"):
         """Updates a player's score in data_players.json"""
         if not os.path.exists(filename):
             display_message("File data_players.json not found.")
