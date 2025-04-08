@@ -21,11 +21,11 @@ class PlayerController:
             if choice == "1":
                 self.add_new_player()
             elif choice == "2":
-                self.modify_player(Player.all_players)
+                self.modify_player()
             elif choice == "3":
                 self.delete_player()
             elif choice == "4":
-                self.display_players()
+                self.display_players(Player.all_players)
             elif choice == "5":
                 break
             else:
@@ -155,7 +155,8 @@ class PlayerController:
         else:
             display_message("\nDeletion cancelled.")
 
-    def sort_players_by_score(self, players):
+    @staticmethod
+    def sort_players_by_score(players):
         """Loads players from file and sorts them by score"""
         sorted_players_by_score = sorted(players, key=lambda x: x.score, reverse=True)
         return sorted_players_by_score
