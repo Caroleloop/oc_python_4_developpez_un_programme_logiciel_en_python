@@ -9,13 +9,31 @@ from views.utile import get_input, display_message
 
 class PlayerController:
     def __init__(self, players):
-        """Controller to manage players."""
+        """Initializes the player controller with a list of players.
+
+        Args:
+            players (list): List of existing Player instances.
+
+        Attributes:
+            player_model (Player): Reference to the Player model.
+            view (PlayerView): View instance to handle player-related interactions.
+            menu_view (MenuView): View instance for displaying menu options.
+        """
         Player.all_players = players
         self.player_model = Player
         self.view = PlayerView()
         self.menu_view = MenuView()
 
     def player_management(self):
+        """Main loop for player management menu.
+
+        Handles the user's menu selections for:
+            1. Adding a new player.
+            2. Modifying existing player.
+            3. Deleting a player.
+            4. Displaying all players.
+            5. Exiting to previous menu.
+        """
         while True:
             choice = self.view.display_player_menu()
             if choice == "1":
@@ -33,13 +51,21 @@ class PlayerController:
 
     @staticmethod
     def player_id():
-        """id du joueur"""
+        """Prompts user for a player ID.
+
+        Returns:
+            int: ID of the selected player.
+        """
         player_id = get_input("\nEnter the ID of the player: ")
         player_id = int(player_id)
         return player_id
 
     def add_new_player(self):
-        """Create a player, save it in the database"""
+        """Creates a new player and saves it to the player list and database.
+
+        Returns:
+            Player: The newly created player instance.
+        """
         last_name = get_input("Player's last name: ")
         first_name = get_input("Player's first name: ")
         while True:
@@ -67,8 +93,15 @@ class PlayerController:
         return new_player
 
     def modify_player(self):
-        """Allows the user to modify the information of an existing player by entering his ID.
-        If the user leaves a field empty, the old value is retained."""
+        """Modifies an existing player's information.
+
+        Prompts for player ID and allows editing of:
+            - Last name
+            - First name
+            - Birthdate (validated)
+            - National chess identifier (validated)
+        Keeps old values if input is left blank.
+        """
         player_id = self.player_id()
 
         # Find the player to modify
@@ -126,7 +159,10 @@ class PlayerController:
         display_message("\nPlayer successfully updated.")
 
     def delete_player(self):
-        """Deletes a player."""
+        """Deletes a player from the database after confirmation.
+
+        Asks for the player's ID and a confirmation from the user before deletion.
+        """
         player_id = self.player_id()
 
         # Check if the player exists
@@ -157,19 +193,37 @@ class PlayerController:
 
     @staticmethod
     def sort_players_by_score(players):
-        """Loads players from file and sorts them by score"""
+        """Sorts the players by their score in descending order.
+
+        Args:
+            players (list): List of Player instances.
+
+        Returns:
+            list: Sorted list of players by score (highest to lowest).
+        """
         sorted_players_by_score = sorted(players, key=lambda x: x.score, reverse=True)
         return sorted_players_by_score
 
     @staticmethod
     def sort_players_in_alphabetical_order(players):
-        """Loads players from file and sorts them alphabetically (last name, first name)."""
+        """Sorts players alphabetically by last name, then by first name.
+
+        Args:
+            players (list): List of Player instances.
+
+        Returns:
+            list: Alphabetically sorted list of players.
+        """
         sorted_players_by_last_name = sorted(players, key=lambda x: (x.last_name.lower(), x.first_name.lower()))
         return sorted_players_by_last_name
 
     @staticmethod
     def display_players(players):
-        """display players"""
+        """Displays a list of players with full information.
+
+        Args:
+            players (list): List of Player instances.
+        """
         for player in players:
             display_message(
                 f"\tID: {player.id}\n\t"
@@ -179,7 +233,3 @@ class PlayerController:
                 f"National chess identifier: {player.national_chess_identifier}\n\t"
                 f"Score: {player.score}\n\n"
             )
-
-
-if __name__ == "__main__":
-    pass

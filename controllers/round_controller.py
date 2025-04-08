@@ -6,28 +6,46 @@ from models.tournament_model import Tournament
 
 class RoundController:
     def __init__(self):
+        """Initializes the round controller.
+
+        Attributes:
+            past_matches (set): Set containing all previously played player pairs.
+            tounament_model (Tournament): Reference to the Tournament model.
+        """
         self.past_matches = set()
         self.tounament_model = Tournament
 
     def create_round(self, name_round, start_time, end_time):
-        """
-        Creates a new round and initializes its matches.
+        """Creates a new round and initializes its structure.
 
         Args:
-            name (str): round name (e.g. "Round 1”).
-            start_date_time (str): Round start date and time (format 'YYYY-MM-DD HH:MM').
+            name_round (str): Name of the round (e.g., "Round 1").
+            start_time (str): Round start datetime ('YYYY-MM-DD HH:MM').
+            end_time (str): Round end datetime ('YYYY-MM-DD HH:MM').
+
+        Returns:
+            dict: Dictionary representing the round with metadata and empty match list.
         """
         round_data = {"name": name_round, "start_time": start_time, "end_time": end_time, "matches": []}
         return round_data
 
     def initialize_current_round(self, tournament):
-        """Initialise l'attribut current_round si inexistant."""
+        """Initializes the current round number if not already defined.
+
+        Args:
+            tournament (Tournament): The tournament to initialize.
+        """
         if not hasattr(tournament, "current_round"):
             tournament.current_round = 1
 
     def shuffle_player(self, tournament_id):
-        """
-        Randomly shuffles the list of players to avoid any bias in pair formation.
+        """Randomly shuffles the players of the tournament.
+
+        Args:
+            tournament_id (str): The ID of the tournament.
+
+        Returns:
+            list: Shuffled list of player IDs.
         """
         for tournament in Tournament.all_tournaments:
             if tournament.id == tournament_id:
@@ -39,8 +57,13 @@ class RoundController:
         return players_list
 
     def shuffle_player_by_score(self, tournament_id):
-        """
-        Randomly shuffles the list of players to avoid any bias in pair formation.
+        """Sorts players by score in descending order.
+
+        Args:
+            tournament_id (str): The ID of the tournament.
+
+        Returns:
+            list: List of player IDs sorted by score.
         """
         for tournament in Tournament.all_tournaments:
             if tournament.id == tournament_id:
@@ -59,7 +82,7 @@ class RoundController:
         return players_list_by_score
 
     def create_first_round(self):
-        """Creates the first round of the tournament by randomly generating pairs of players."""
+        """Creates the first round for a tournament, generates pairs, and assigns colors."""
         tournament = Tournament.tournament_id()
         # check that the tournament has players
         if len(tournament.players) < 2:
@@ -114,25 +137,25 @@ class RoundController:
 
     @staticmethod
     def create_pairs_round_1(players_list):
-        """
-        Generates player pairs for the first round according to random order.
+        """Creates pairs of players randomly for the first round.
+
+        Args:
+            players_list (list): List of player IDs.
 
         Returns:
-            list[tuple]: A list of tuples containing the player pairs.
+            list[tuple]: List of player ID pairs.
         """
-
         pairs = [(players_list[i], players_list[i + 1]) for i in range(0, len(players_list), 2)]
         return pairs
 
     def creation_pairs_other_rounds(self, players_list_by_score):
-        """
-        Generates player pairs for subsequent rounds based on scores.
+        """Creates unique player pairs for other rounds based on score.
 
         Args:
-            players_list_by_score (list): Liste des joueurs triés par score.
+            players_list_by_score (list): List of player IDs sorted by score.
 
         Returns:
-            list[tuple]: A list of tuples representing player pairs.
+            list[tuple]: List of player ID pairs ensuring no repetition if possible.
         """
 
         # shuffle_player_by_score = self.shuffle_player_by_score(tournament_id)
@@ -189,16 +212,13 @@ class RoundController:
         return pairs_by_score
 
     def draw_white_black(self, pairs):
-        """
-        Randomly determines which player will play with the white or black pieces.
+        """Randomly assigns white and black pieces to each player in the pairs.
 
         Args:
-            player1 (Player): First player of the pair.
-            player2 (Player): Second player of the pair.
+            pairs (list[tuple]): List of player pairs.
 
         Returns:
-         tuple: (Player, Player) where the first element is the player who plays in white
-         and the second element is the player who plays in black.
+            list[dict]: List of dictionaries with color assignments.
         """
         assigned_pairs = []
         for player1, player2 in pairs:
@@ -255,8 +275,11 @@ class RoundController:
 
     @staticmethod
     def start_round(tournament):
-        """Tournament starts with round 1"""
+        """Starts the latest round of the tournament by assigning its start date.
 
+        Args:
+            tournament (Tournament): The tournament whose round is to be started.
+        """
         if not tournament.rounds:
             display_message("No round has yet been created.")
             return

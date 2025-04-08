@@ -8,7 +8,19 @@ class Player:
     all_players = []
 
     def __init__(self, last_name, first_name, birthdate, national_chess_identifier, score: int = 0):
-        """Initializes player data"""
+        """
+        Initializes player data with the provided information.
+
+        Args:
+            last_name (str): The last name of the player.
+            first_name (str): The first name of the player.
+            birthdate (str): The player's birthdate in the format YYYY-MM-DD.
+            national_chess_identifier (str): The player's national chess identifier.
+            score (int, optional): The player's current score. Defaults to 0.
+
+        Raises:
+            ValueError: If the birthdate format is invalid (not YYYY-MM-DD).
+        """
         if not re.match(r"\d{4}-\d{2}-\d{2}", birthdate):
             raise ValueError("Invalid birthdate format. Use YYYY-MM-DD.")
         Player.counter += 1
@@ -23,19 +35,21 @@ class Player:
         Player.all_players.append(self)
 
     def __str__(self):
-        """Returns the player's full name as 'Last Name First Name'.
+        """
+        Returns the player's full name in the format "First Name Last Name".
 
         Returns:
-            str: Player's full name.
+            str: The player's full name.
         """
         return self.first_name + " " + self.last_name
 
     @staticmethod
     def save_data_players(filename="data_players.json"):
-        """Save all player data to a JSON file.
+        """
+        Saves all player data to a JSON file.
 
         Args:
-            filename (str, optional): Name of the JSON file. Defaults to "data_players.json".
+            filename (str, optional): The name of the file to save the data to. Defaults to "data_players.json".
 
         Returns:
             bool:
@@ -43,7 +57,7 @@ class Player:
                 - `False` if the save operation failed.
 
         Raises:
-            IOError: If an error occurs while writing to the file.ta.
+            IOError: If an error occurs while writing to the file.
         """
         # file path to data_player.json
         file_path = os.path.join(os.getcwd(), filename)
@@ -64,6 +78,9 @@ class Player:
 
         Args:
             filename (str, optional): The file name to load players from. Defaults to "data_players.json".
+
+        Returns:
+            list: A list of all players loaded from the file, or an empty list if loading failed.
         """
         filename = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", filename))
         if not os.path.exists(filename):
@@ -94,23 +111,18 @@ class Player:
 
     @staticmethod
     def get_player_data(player_id):
-        """Searches for and returns player information based on registration ID
+        """
+        Retrieves the data of a specific player by their ID.
+
         Args:
-           registration_ID (str): registration ID of searched player.
+            player_id (int): The ID of the player to search for.
 
         Returns:
-            dict or None:
-                - A dictionary containing the player's information if found:
-                    -"id" (int) :
-                    - “name” (str) : Name of the player.
-                    - “prenom” (str) : Player's first name.
-                    - “date_naissance” (str): Player's date of birth.
-                    - “national_chess_identifier” (int): Player's unique identifier.
-                    - “score” (int): Player's current score.
-                - `None` if no player matches the name provided.
+            dict: A dictionary containing the player's information if found.
 
         Raises:
-            ValueError: If the name is empty or invalid."""
+            ValueError: If no player is found with the provided ID.
+        """
         if not isinstance(player_id, int):
             raise ValueError("Player ID must be an integer.")
 
@@ -126,7 +138,3 @@ class Player:
                 }
 
         raise ValueError("No players found with this id")
-
-
-if __name__ == "__main__":
-    pass

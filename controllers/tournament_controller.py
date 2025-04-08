@@ -1,4 +1,3 @@
-# import random
 import datetime
 from views.tournament_view import TournamentView
 from models.tournament_model import Tournament
@@ -11,6 +10,20 @@ from views.utile import get_input, display_message
 
 class TournamentController:
     def __init__(self, tournaments, players):
+        """Initializes the TournamentController with tournament and player data.
+
+        Args:
+            tournaments (list): List of existing Tournament instances.
+            players (list): List of existing Player instances.
+
+        Attributes:
+            view (TournamentView): View for tournament-related user interactions.
+            model (Tournament): Tournament model class.
+            player_model (Player): Player model class.
+            match_controller (MatchController): Match controller class.
+            round_controller (RoundController): Instance of RoundController.
+            player_controller (PlayerController): Player controller class.
+        """
         self.view = TournamentView()
         self.model = Tournament
         self.player_model = Player
@@ -22,6 +35,7 @@ class TournamentController:
         # self.past_matches = set()
 
     def tournament_management(self):
+        """Displays the tournament menu and handles user choices."""
         while True:
             choice = self.view.display_tournament_menu()
             if choice == "1-1":
@@ -47,39 +61,8 @@ class TournamentController:
             else:
                 print("choice invalide.")
 
-        # @staticmethod
-        # def tournament_id():
-        #     """Request tournament id"""
-        #     if not Tournament.all_tournaments:
-        #         display_message("No tournaments found.")
-        #         return None
-
-        # for tournament in Tournament.all_tournaments:
-        #     display_message(
-        #         f"ID: {tournament.id} | Name: {tournament.name_tournament} | Location: {tournament.location}"
-        #         f"| Start date: {tournament.start_date} | End date: {tournament.end_date}"
-        #     )
-
-        # while True:
-        #     tournament_id = get_input("Enter the ID of the tournament you want to select: (or 'q' to quit): ")
-        #     if tournament_id.lower() == "q":
-        #         return None
-
-        #     try:
-        #         tournament_id = int(tournament_id)
-        #     except ValueError:
-        #         display_message("Invalid input. Please enter a number.")
-        #         continue
-
-        #     tournament = next((t for t in Tournament.all_tournaments if t.id == tournament_id), None)
-
-        #     if tournament:
-        #         return tournament
-        #     else:
-        #         display_message("Tournament not found. Please try again.")
-
     def create_tournament(self):
-        """Tournament creation"""
+        """Creates a new tournament and optionally adds players."""
         name_tournament = get_input("\tTournament name: ").strip()
         location = get_input("\tTournament location: ").strip()
         start_date = get_input("\tStart date of the tournament:").strip()
@@ -110,7 +93,12 @@ class TournamentController:
             display_message("\n\tYou can add players later using the 'Add players' option.")
 
     def add_players_to_the_tournament(self, tournament=None):
-        """Add players to a given tournament based on their IDs"""
+        """Adds players to a specified tournament.
+
+        Args:
+            tournament (Tournament, optional): Tournament to add players to.
+                If None, prompts user to select one.
+        """
         if tournament is None:
             tournament = Tournament.tournament_id()
             if tournament is None:
@@ -150,7 +138,12 @@ class TournamentController:
         display_message("All players have been added to the tournament.")
 
     def delete_player_to_the_tournament(self, tournament=None):
-        """suprimer un joueur du tournois"""
+        """Removes a player from a tournament.
+
+        Args:
+            tournament (Tournament, optional): Tournament to remove the player from.
+                If None, prompts user to select one.
+        """
         if tournament is None:
             tournament = Tournament.tournament_id()
             if tournament is None:
@@ -192,62 +185,8 @@ class TournamentController:
 
         Tournament.save_data_tournament()
 
-    # def create_first_round(self):
-    #     """Creates the first round of the tournament by randomly generating pairs of players."""
-    #     tournament = self.tournament_id()
-    #     # check that the tournament has players
-    #     if len(tournament.players) < 2:
-    #         display_message("Not enough players to start the tournament.")
-    #         return
-
-    #     if len(tournament.players) % 2 != 0:
-    #         display_message(
-    #             "\nThe number of players is odd. An even number even to create tournament matches."
-    #             "Please add or remove a player."
-    #         )
-    #         return
-
-    #     # Check if Round 1 already exists
-    #     if any(round_["name"] == "Round 1" for round_ in tournament.rounds):
-    #         display_message("Round 1 has already been created.")
-    #         return
-
-    #     players_list = self.shuffle_player(tournament.id)
-    #     pairs = self.create_pairs_round_1(players_list)
-    #     matches = []
-
-    #     # For each pair, we determine the colors (White or Black)
-    #     for p1, p2 in pairs:
-    #         # Assuming draw_white_black returns a list of pairs
-    #         colors = self.draw_white_black([(p1, p2)])
-    #         matches.append([[p1, 0], [p2, 0], colors])
-    #         for match in matches:
-    #             self.past_matches.add((match[0][0], match[1][0]))
-
-    #     round_id = 1
-    #     round_1 = {
-    #         "id": round_id,
-    #         "name": f"Round {round_id}",
-    #         "start_date_round": "",
-    #         "end_date_round": "",
-    #         "matches": matches,
-    #     }
-
-    #     tournament.rounds.append(round_1)
-    #     # tournament.current_round = 0
-
-    #     # Remplace l'ancien tournoi dans la liste des tournois
-    #     for i, t in enumerate(Tournament.all_tournaments):
-    #         if t.id == tournament.id:
-    #             Tournament.all_tournaments[i] = tournament
-    #             break
-
-    #     self.start_round(tournament)
-    #     Tournament.save_data_tournament()
-    #     display_message("First round successfully created!")
-
     def end_of_tournament(self):
-        """tournament end date"""
+        """Sets the end date of a tournament."""
         tournament = Tournament.tournament_id()
         if tournament.start_date:
             display_message("The tournament has already begun.")
@@ -259,8 +198,11 @@ class TournamentController:
         display_message(f"The tournament '{tournament.name_tournament}' ended on {tournament.start_date}.")
 
     def modify_tournament(self):
-        """Allows the user to modify the information of an existing tournament by entering its ID.
-        If the user leaves a field empty, the old value is retained."""
+        """Modifies the details of an existing tournament.
+
+        Prompts user to enter new values or leave fields blank
+        to keep existing information.
+        """
         tournament = Tournament.tournament_id()
 
         # Display current information
@@ -299,7 +241,7 @@ class TournamentController:
         display_message("Tournament successfully updated.")
 
     def delete_tournament(self):
-        """Deleting a tournament with id"""
+        """Deletes a tournament by its ID after confirmation."""
         tournament = Tournament.tournament_id()
 
         # Request confirmation
@@ -319,122 +261,13 @@ class TournamentController:
             display_message("Deletion cancelled.")
         pass
 
-    # def shuffle_player(self, tournament_id):
-    #     """
-    #     Randomly shuffles the list of players to avoid any bias in pair formation.
-    #     """
-    #     for tournament in Tournament.all_tournaments:
-    #         if tournament.id == tournament_id:
-    #             players_list = tournament.players
-
-    #     # Player.all_players_list = tournament_data[tournament_id].get("players", [])
-    #     if len(players_list) > 1:
-    #         random.shuffle(players_list)
-    #     return players_list
-
-    # def shuffle_player_by_score(self, tournament_id):
-    #     """
-    #     Randomly shuffles the list of players to avoid any bias in pair formation.
-    #     """
-    #     for tournament in Tournament.all_tournaments:
-    #         if tournament.id == tournament_id:
-    #             players_list = tournament.players
-
-    #     scores = {player_id: 0 for player_id in players_list}
-
-    #     for round_data in tournament.rounds:
-    #         for match in round_data["matches"]:
-    #             for player_score in match[:2]:
-    #                 player_id, score = player_score
-    #                 scores[player_id] += score
-
-    #     players_list_by_score = sorted(players_list, key=lambda player: scores[player], reverse=True)
-
-    #     return players_list_by_score
-
-    # def create_pairs_round_1(self, players_list):
-    #     """
-    #     Generates player pairs for the first round according to random order.
-
-    #     Returns:
-    #         list[tuple]: A list of tuples containing the player pairs.
-    #     """
-
-    #     pairs = [(players_list[i], players_list[i + 1]) for i in range(0, len(players_list), 2)]
-    #     return pairs
-
-    # def creation_pairs_other_rounds(self, players_list_by_score):
-    #     """
-    #     Generates player pairs for subsequent rounds based on scores.
-
-    #     Returns:
-    #         list[tuple]: A list of tuples representing player pairs.
-    #     """
-
-    #     # shuffle_player_by_score = self.shuffle_player_by_score(tournament_id)
-    #     pairs_by_score = []
-    #     joueurs_deja_associes = set(self.past_matches)  # Copier les paires déjà jouées
-    #     joueurs_utilises = set()  # Liste des joueurs déjà affectés à un match
-
-    #     i = 0
-    #     while i < len(players_list_by_score):
-    #         joueur_1 = players_list_by_score[i]
-
-    #         if joueur_1 in joueurs_utilises:
-    #             i += 1
-    #             continue
-
-    #         # Chercher un joueur avec qui il n'a pas encore joué
-    #         for j in range(i + 1, len(players_list_by_score)):
-    #             joueur_2 = players_list_by_score[j]
-
-    #             if joueur_2 in joueurs_utilises:
-    #                 continue
-
-    #             paire = (joueur_1, joueur_2)
-    #             paire_inverse = (joueur_2, joueur_1)
-
-    #             if paire not in joueurs_deja_associes and paire_inverse not in joueurs_deja_associes:
-    #                 pairs_by_score.append(paire)
-    #                 self.past_matches.add(paire)  # Ajouter la paire entière aux matchs passés
-    #                 joueurs_utilises.add(joueur_1)
-    #                 joueurs_utilises.add(joueur_2)
-    #                 break  # On a trouvé un match pour joueur_1, on passe au suivant
-
-    #             joueurs_restants = [j for j in players_list_by_score if j not in joueurs_utilises]
-    #             if len(joueurs_restants) == 2 and joueur_1 in joueurs_restants and joueur_2 in joueurs_restants:
-    #                 pairs_by_score.append(paire)
-    #                 self.past_matches.add(paire)
-    #                 joueurs_utilises.add(joueur_1)
-    #                 joueurs_utilises.add(joueur_2)
-    #                 break
-
-    #         i += 1  # Passer au joueur suivant
-    #     return pairs_by_score
-
-    # def draw_white_black(self, pairs):
-    #     """
-    #     Randomly determines which player will play with the white or black pieces.
-
-    #     Args:
-    #         player1 (Player): First player of the pair.
-    #         player2 (Player): Second player of the pair.
-
-    #     Returns:
-    #      tuple: (Player, Player) where the first element is the player who plays in white
-    #      and the second element is the player who plays in black.
-    #     """
-    #     assigned_pairs = []
-    #     for player1, player2 in pairs:
-    #         if random.choice([True, False]):
-    #             assigned_pairs.append({player1: "white", player2: "black"})  # player1 gets white, player2 gets black
-    #         else:
-    #             assigned_pairs.append({player2: "white", player1: "black"})  # player2 gets white, player1 gets black
-    #     return assigned_pairs
-
     def score_update(self, tournament=None):
         """
-        Updates player scores after a match and updates the current round.
+        Updates player scores for matches in the current round.
+
+        Args:
+            tournament (Tournament, optional): Tournament whose scores are to be updated.
+                If None, user is prompted to choose one.
         """
         tournament = Tournament.tournament_id()
         if not tournament.rounds:
@@ -478,7 +311,7 @@ class TournamentController:
 
     @staticmethod
     def display_tournament():
-        """display tournament"""
+        """Displays all tournament data: players, rounds, matches, and results."""
         Player.load_data_players()
         Tournament.load_data_tournaments()
 
@@ -535,26 +368,13 @@ class TournamentController:
                     else:
                         display_message("\t\t\t- Invalid player data.")
 
-    # def start_round(self, tournament):
-    #     """Tournament starts with round 1"""
-
-    #     if not tournament.rounds:
-    #         display_message("No round has yet been created.")
-    #         return
-
-    #     latest_round = tournament.rounds[-1]
-
-    #     if "start_date_round" in latest_round and latest_round["start_date_round"]:
-    #         display_message(f"{latest_round['name']} has already begun.")
-    #         return
-
-    #     latest_round["start_date_round"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-    #     tournament.current_round += 1
-    #     Tournament.save_data_tournament()
-
     @staticmethod
     def end_tournament(tournament):
-        """Ends the tournament if it was the last round."""
+        """Ends a tournament if its last round has been completed.
+
+        Args:
+            tournament (Tournament): Tournament instance to check and close.
+        """
         if not tournament.rounds:
             display_message("No round found for this tournament.")
             return
@@ -575,48 +395,3 @@ class TournamentController:
             display_message(f"\nThe tournament '{tournament.name_tournament}' is finished!")
         else:
             display_message(f"{current_round['name']} finished. The tournament continues.")
-
-    # def create_another_round(self):
-    #     """Create a new tournament round."""
-    #     tournament = self.tournament_id()
-    #     if len(tournament.players) < 2:
-    #         display_message("Not enough players to start the tournament.")
-    #         return
-
-    #     # checks whether the last round has been completed
-    #     if tournament.rounds:
-    #         last_round = tournament.rounds[-1]
-    #         if not last_round["end_date_round"]:
-    #             display_message("\nYou must end the previous round before starting a new one.")
-    #             return
-
-    #     players_list_score = self.shuffle_player_by_score(tournament.id)
-    #     pairs = self.creation_pairs_other_rounds(players_list_score)
-
-    #     matches = []
-    #     for p1, p2 in pairs:
-    #         colors = self.draw_white_black([(p1, p2)])
-    #         matches.append([[p1, 0], [p2, 0], colors])
-    #         for match in matches:
-    #             self.past_matches.add((match[0][0], match[1][0]))
-
-    #     round_id = len(tournament.rounds) + 1
-
-    #     # Creating the new round
-    #     new_round = {
-    #         "id": round_id,
-    #         "name": f"Round {round_id}",
-    #         "start_date_round": "",
-    #         "end_date_round": "",
-    #         "matches": matches,
-    #     }
-
-    #     tournament.rounds.append(new_round)
-    #     for i, t in enumerate(Tournament.all_tournaments):
-    #         if t.id == tournament.id:
-    #             Tournament.all_tournaments[i] = tournament
-    #             break
-
-    #     self.start_round(tournament)
-    #     Tournament.save_data_tournament()
-    #     display_message(f"Round {round_id} has been successfully created!")

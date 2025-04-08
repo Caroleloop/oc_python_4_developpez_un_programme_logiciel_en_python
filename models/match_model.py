@@ -4,13 +4,13 @@ class Match:
 
         Args:
             player_1 (Player): First player of the match.
-            player_2 (Player): Second player in the match.
+            player_2 (Player): Second player of the match.
 
         Attributes:
             player_1 (Player): Player playing with white pieces.
             player_2 (Player): Player playing with black pieces.
-            score_player1 (float): Player 1's score (initialized to 0).
-            score_player2 (float): Player 2's score (initialized to 0).
+            scores (dict): Dictionary containing the players as keys and their scores (float) as values,
+            initialized to 0.
         """
         self.player_1 = player_1
         self.player_2 = player_2
@@ -19,7 +19,13 @@ class Match:
 
     @property
     def finished(self):
-        """Checks if the match is finished."""
+        """Checks if the match is finished.
+
+        Returns:
+            bool:
+                - `True` if at least one of the players has a score greater than 0.
+                - `False` if the match has not been played yet (both scores are 0).
+        """
         sum_scores = 0
         for _, score in self.scores.items():
             sum_scores += score
@@ -28,8 +34,3 @@ class Match:
             return False
 
         return True
-
-
-if __name__ == "__main__":
-    my_match = Match("p1", "p2")
-    print(my_match.finished)

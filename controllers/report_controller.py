@@ -8,6 +8,17 @@ from models.tournament_model import Tournament
 
 class ReportController:
     def __init__(self, tournaments):
+        """Initializes the ReportController.
+
+        Args:
+            tournaments (list): List of tournaments to be loaded into the application.
+
+        Attributes:
+            view (ReportView): View handler for displaying reports.
+            player_controller (PlayerController): Controller for player-related operations.
+            tournament_controller (TournamentController): Controller for tournament-related operations.
+            player_model (Player): Player model class.
+        """
         self.view = ReportView()
         self.player_controller = PlayerController
         self.tournament_controller = TournamentController
@@ -15,6 +26,9 @@ class ReportController:
         Tournament.all_tournaments = tournaments
 
     def display_reports(self):
+        """Main loop for the report menu.
+        Handles user input and triggers corresponding report display methods.
+        """
         while True:
             choice = self.view.display_report_menu()
             if choice == "1":
@@ -33,13 +47,13 @@ class ReportController:
                 print("Invalid choice, please try again.")
 
     def list_players_in_alphabetical_order(self):
-        """display player lists in alphabetical order"""
+        """Displays the list of all players sorted alphabetically by last name."""
         players = Player.all_players
         sorted_players_by_last_name = PlayerController.sort_players_in_alphabetical_order(players)
         PlayerController.display_players(sorted_players_by_last_name)
 
     def list_tournaments(self):
-        """display tournament list"""
+        """Displays a list of all tournaments with key details."""
         for tournament in Tournament.all_tournaments:
             display_message(
                 f"\n\n\tID: {tournament.id}\n\t"
@@ -52,7 +66,7 @@ class ReportController:
             )
 
     def tournament_details(self):
-        """display name and dates of a given tournament"""
+        """Displays basic details (name, start/end dates) of a selected tournament."""
         tournament_id = Tournament.tournament_id()
 
         display_message(
@@ -63,7 +77,7 @@ class ReportController:
         )
 
     def list_tournament_players(self):
-        """list of tournament players in alphabetical order"""
+        """Displays players from a selected tournament in alphabetical order."""
         tournament_id = Tournament.tournament_id()
         display_message("\tPlayers: ")
         players = []
@@ -75,7 +89,14 @@ class ReportController:
         PlayerController.display_players(sorted_tournament_players_by_last_name)
 
     def list_rounds_and_matches(self):
-        """list of all rounds in a tournament rt of all matches in a round"""
+        """Displays all rounds and associated matches for a selected tournament.
+
+        Shows each round’s start and end time, followed by match details including:
+            - player names
+            - player IDs
+            - assigned colors
+            - scores
+        """
         tournament_id = Tournament.tournament_id()
         for round_ in tournament_id.rounds:
             display_message(

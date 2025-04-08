@@ -10,7 +10,18 @@ class Tournament:
     def __init__(
         self, name_tournament, location, start_date, end_date=(""), number_rounds=4, description="", current_round=0
     ):
-        """initalizing a tournament"""
+        """
+        Initializes a tournament with the given attributes.
+
+        Args:
+            name_tournament (str): The name of the tournament.
+            location (str): The location where the tournament is held.
+            start_date (str): The start date of the tournament (format: YYYY-MM-DD).
+            end_date (str, optional): The end date of the tournament (format: YYYY-MM-DD). Defaults to an empty string.
+            number_rounds (int, optional): The number of rounds in the tournament. Defaults to 4.
+            description (str, optional): A description of the tournament. Defaults to an empty string.
+            current_round (int, optional): The current round of the tournament. Defaults to 0.
+        """
         Tournament.counter += 1
         self.id = Tournament.counter
 
@@ -28,10 +39,11 @@ class Tournament:
 
     @staticmethod
     def save_data_tournament(filename="data_tournament.json"):
-        """Save tournament data to a JSON file.
+        """
+        Saves tournament data to a JSON file.
 
         Args:
-            filename (str, optional): Name of the JSON file. Defaults to "data_tournament.json".
+            filename (str, optional): The name of the file to save the data to. Defaults to "data_tournament.json".
 
         Returns:
             bool:
@@ -39,7 +51,7 @@ class Tournament:
                 - `False` if the save operation failed.
 
         Raises:
-            IOError: If an error occurs while writing to the file.ta.
+            IOError: If an error occurs while writing to the file.
         """
         # file path to data_tournament.json
         file_path = os.path.join(os.getcwd(), filename)
@@ -58,10 +70,13 @@ class Tournament:
     @staticmethod
     def load_data_tournaments(filename="data_tournament.json"):
         """
-        Loads tournaments from a JSON file and repopulates the tournaments list.
+        Loads tournaments from a JSON file and repopulates the list of tournaments.
 
         Args:
             filename (str, optional): The file name to load tournaments from. Defaults to "data_tournament.json".
+
+        Returns:
+            list: A list of all tournaments loaded from the file, or an empty list if loading failed.
         """
         Tournament.all_tournaments.clear()
         filename = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", filename))
@@ -94,25 +109,18 @@ class Tournament:
 
     @staticmethod
     def get_tournament_data(tournament_id):
-        """Searches for and returns tournament information based on registration ID
+        """
+        Retrieves the data of a specific tournament by its ID.
+
         Args:
-           registration_ID (str): registration ID of searched tournament.
+            tournament_id (int): The ID of the tournament to search for.
 
         Returns:
-            dict or None:
-                - A dictionary containing the tournament's information if found:
-                    -"id" (int) :
-                    - "name_tournament" (str): Name of the tournament.
-                    - "location" (str): Tournament location.
-                    - "start_date" (int): Tournament start date.
-                    - "end_date" (int): Tournament end date.
-                    - "number_rounds" (int): Number of rounds of the tournament.
-                    - "description" (str): Tournament description.
-                    - "list_rounds" (list): Tournament round lists.
-                - `None` if no tournament matches the name provided.
+            dict: A dictionary containing the tournament's information if found.
 
         Raises:
-            ValueError: If the name is empty or invalid."""
+            ValueError: If no tournament is found with the provided ID.
+        """
         for tournament in Tournament.all_tournaments:
             if tournament.id == tournament_id:
                 return {
@@ -131,7 +139,12 @@ class Tournament:
 
     @staticmethod
     def tournament_id():
-        """Request tournament id"""
+        """
+        Prompts the user to select a tournament by its ID.
+
+        Returns:
+            Tournament or None: The selected tournament, or `None` if no tournament is selected.
+        """
         if not Tournament.all_tournaments:
             display_message("No tournaments found.")
             return None
