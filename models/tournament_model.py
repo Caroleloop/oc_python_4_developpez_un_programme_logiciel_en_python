@@ -1,5 +1,6 @@
 import json
 import os
+from views.utile import get_input, display_message
 
 
 class Tournament:
@@ -127,3 +128,34 @@ class Tournament:
                 }
 
         raise ValueError("No tournament found with this id")
+
+    @staticmethod
+    def tournament_id():
+        """Request tournament id"""
+        if not Tournament.all_tournaments:
+            display_message("No tournaments found.")
+            return None
+
+        for tournament in Tournament.all_tournaments:
+            display_message(
+                f"ID: {tournament.id} | Name: {tournament.name_tournament} | Location: {tournament.location}"
+                f"| Start date: {tournament.start_date} | End date: {tournament.end_date}"
+            )
+
+        while True:
+            tournament_id = get_input("Enter the ID of the tournament you want to select: (or 'q' to quit): ").strip()
+            if tournament_id.lower() == "q":
+                return None
+
+            try:
+                tournament_id = int(tournament_id)
+            except ValueError:
+                display_message("Invalid input. Please enter a number.")
+                continue
+
+            tournament = next((t for t in Tournament.all_tournaments if t.id == tournament_id), None)
+
+            if tournament:
+                return tournament
+            else:
+                display_message("Tournament not found. Please try again.")

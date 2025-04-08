@@ -11,11 +11,6 @@ class MatchController:
         """Controller to manage matches"""
         self.match_model = Match
 
-    def create_match(self, player_1, player_2):
-        """Create a new match instance and initialize scores."""
-        self.match_model(player_1, player_2)
-        display_message(f"Match créé entre {player_1} et {player_2}.")
-
     @staticmethod
     def match_result(player1, player2, result, match):
         """Gives the results of the match:
@@ -86,22 +81,3 @@ class MatchController:
         # Save changes
         with open(filename, "w", encoding="utf-8") as file:
             json.dump(players_data, file, indent=4)
-
-    def charger_matchs_joues(self):
-        """Charge les matchs déjà joués depuis un fichier JSON."""
-        try:
-            with open(self.fichier_json, "r") as file:
-                data = json.load(file)
-                matchs_joues = set()
-                for round in data.get("rounds", []):
-                    for match in round:
-                        matchs_joues.add(tuple(match))
-                return matchs_joues
-        except (FileNotFoundError, json.JSONDecodeError):
-            return set()
-
-
-if __name__ == "__main__":
-    controller = MatchController("Magnus", "Hikaru")
-    controller.match_result("1")  # Magnus gagne
-    controller.save_scores_to_json(controller.scores)

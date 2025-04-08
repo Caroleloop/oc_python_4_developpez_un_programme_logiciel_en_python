@@ -53,7 +53,7 @@ class ReportController:
 
     def tournament_details(self):
         """display name and dates of a given tournament"""
-        tournament_id = TournamentController.tournament_id()
+        tournament_id = Tournament.tournament_id()
 
         display_message(
             f"\n\n\tID: {tournament_id.id}\n\t"
@@ -64,7 +64,7 @@ class ReportController:
 
     def list_tournament_players(self):
         """list of tournament players in alphabetical order"""
-        tournament_id = TournamentController.tournament_id()
+        tournament_id = Tournament.tournament_id()
         display_message("\tPlayers: ")
         players = []
         for player_id in tournament_id.players:
@@ -76,7 +76,7 @@ class ReportController:
 
     def list_rounds_and_matches(self):
         """list of all rounds in a tournament rt of all matches in a round"""
-        tournament_id = TournamentController.tournament_id()
+        tournament_id = Tournament.tournament_id()
         for round_ in tournament_id.rounds:
             display_message(
                 f"\t\t{round_['name']}:\n "
