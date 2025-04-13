@@ -4,7 +4,7 @@ from datetime import datetime
 from models.player_model import Player
 from views.player_view import PlayerView
 from views.menu_view import MenuView
-from views.utile import get_input, display_message
+from utile.utile import get_input, display_message
 
 
 class PlayerController:

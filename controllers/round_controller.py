@@ -1,6 +1,6 @@
 import random
 import datetime
-from views.utile import display_message
+from utile.utile import display_message
 from models.tournament_model import Tournament
 
 

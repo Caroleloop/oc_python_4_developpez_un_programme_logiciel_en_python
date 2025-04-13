@@ -5,7 +5,7 @@ from models.player_model import Player
 from controllers.match_controller import MatchController
 from controllers.round_controller import RoundController
 from controllers.player_controller import PlayerController
-from views.utile import get_input, display_message
+from utile.utile import get_input, display_message
 
 
 class TournamentController:

@@ -1,6 +1,6 @@
 import json
 import os
-from views.utile import get_input, display_message
+from utile.utile import get_input, display_message
 
 
 class Tournament:

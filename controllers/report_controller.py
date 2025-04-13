@@ -2,7 +2,7 @@ from views.report_view import ReportView
 from controllers.player_controller import PlayerController
 from models.player_model import Player
 from controllers.tournament_controller import TournamentController
-from views.utile import display_message
+from utile.utile import display_message
 from models.tournament_model import Tournament
 
 

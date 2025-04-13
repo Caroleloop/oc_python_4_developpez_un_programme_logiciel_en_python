@@ -3,7 +3,7 @@ import json
 
 
 from models.match_model import Match
-from views.utile import display_message
+from utile.utile import display_message
 
 
 class MatchController:
