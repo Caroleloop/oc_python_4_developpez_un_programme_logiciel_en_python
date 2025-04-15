@@ -171,6 +171,8 @@ class RoundController:
                 i += 1
                 continue
 
+            paire_trouvee = False
+
             # Chercher un joueur avec qui il n'a pas encore joué
             for j in range(i + 1, len(players_list_by_score)):
                 joueur_2 = players_list_by_score[j]
@@ -183,32 +185,27 @@ class RoundController:
 
                 if paire not in joueurs_deja_associes and paire_inverse not in joueurs_deja_associes:
                     pairs_by_score.append(paire)
-                    self.past_matches.add(paire)  # Ajouter la paire entière aux matchs passés
-                    joueurs_utilises.add(joueur_1)
-                    joueurs_utilises.add(joueur_2)
-                    break  # On a trouvé un match pour joueur_1, on passe au suivant
-
-                joueurs_restants = [j for j in players_list_by_score if j not in joueurs_utilises]
-                if len(joueurs_restants) == 2 and joueur_1 in joueurs_restants and joueur_2 in joueurs_restants:
-                    pairs_by_score.append(paire)
                     self.past_matches.add(paire)
-                    joueurs_utilises.add(joueur_1)
-                    joueurs_utilises.add(joueur_2)
+                    joueurs_utilises.update([joueur_1, joueur_2])
+                    paire_trouvee = True
                     break
 
-            # Si tous les joueurs ont déjà été associés (toutes les paires possibles ont été jouées)
-            # On force la création des paires, même si elles ont déjà été jouées
-            if len(joueurs_utilises) == len(players_list_by_score) - 1:
-                joueurs_restants = [j for j in players_list_by_score if j not in joueurs_utilises]
-                if len(joueurs_restants) == 2:
-                    # Créer une paire avec les deux derniers joueurs restants, même si elle a déjà été jouée
-                    paire = (joueurs_restants[0], joueurs_restants[1])
-                    pairs_by_score.append(paire)
-                    self.past_matches.add(paire)  # Ajouter la paire aux matchs passés
-                    joueurs_utilises.add(joueurs_restants[0])
-                    joueurs_utilises.add(joueurs_restants[1])
+            if not paire_trouvee:
+                # Aucun joueur dispo avec qui il n'a pas joué, on forcera à la fin
+                i += 1
+            else:
+                i += 1  # Avance quand une paire est trouvée
 
-            i += 1  # Passer au joueur suivant
+        # Forcer les paires restantes même si elles ont déjà été jouées
+        joueurs_restants = [j for j in players_list_by_score if j not in joueurs_utilises]
+        while len(joueurs_restants) >= 2:
+            joueur_1 = joueurs_restants.pop(0)
+            joueur_2 = joueurs_restants.pop(0)
+            paire = (joueur_1, joueur_2)
+            pairs_by_score.append(paire)
+            self.past_matches.add(paire)
+            joueurs_utilises.update([joueur_1, joueur_2])
+
         return pairs_by_score
 
     def draw_white_black(self, pairs):
