@@ -56,6 +56,8 @@ class PlayerController:
         Returns:
             int: ID of the selected player.
         """
+        for player in Player.all_players:
+            display_message(f"ID: {player.id} | Last name: {player.last_name} | First name: {player.first_name}")
         player_id = get_input("\nEnter the ID of the player: ")
         player_id = int(player_id)
         return player_id
