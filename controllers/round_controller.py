@@ -235,6 +235,11 @@ class RoundController:
             display_message("Not enough players to start the tournament.")
             return
 
+        # Check if the tournament is already finished
+        if len(tournament.rounds) >= tournament.number_rounds:
+            display_message("The tournament is already finished. No more rounds can be created.")
+            return
+
         # checks whether the last round has been completed
         if tournament.rounds:
             last_round = tournament.rounds[-1]
