@@ -9,9 +9,9 @@ This project implements a chess tournament software, allowing you to manage tour
 Before running the program, please ensure that the following prerequisites are installed:
 
 - **Python 3.7+**: Make sure Python is installed on your machine. You can check your Python version by running the following command in your terminal:
-  ```bash
-  python --version
-  ```
+
+        python --version
+
 
 ## Running the program
 
@@ -28,35 +28,29 @@ For the rest of the procedure, please refer to the git documentation: https://do
 + Go to the current folder
 
 + Create your virtual environment
-
-        ```bash            
-        python -m venv <your-virtual-env-name>
-	   ```         
+               
+        python -m venv <your-virtual-env-name>          
 
 
 3. **Activate virtual environment**
-
-        ```bash           
+                  
         <your-virtual-env-name>\Scripts\activate (sous Windows)
-         ```          
-	or
-        ```bash            
-        source <your-virtual-env-name>/bin/activate (sous Mac/Linux)
-        ```          
+                  
+or
+                  
+        source <your-virtual-env-name>/bin/activate (sous Mac/Linux)        
 
 
 4. **Package installation**  Install the necessary libraries by running:
-
-        ```bash            
+                    
         pip install -r requirements.txt
-        ```            
+                    
  The `requirements.txt` file should contain the libraries required for your project (e.g. Flask, etc.).
 
 5. **Run the program** using Python:
-   ```bash
-   python main.py
-   ```
-
+  
+        python main.py
+ 
    The program starts up and presents you with a menu where you can choose various actions, such as creating a tournament, adding players and so on.
    
 
@@ -122,14 +116,14 @@ To guarantee code quality, you can use **Flake8** to analyze the code and genera
 ### Steps to generate a `flake8` report :
 
 1. **Install `flake8-html`** to generate HTML reports:
-   ```bash
-   pip install flake8-html
-   ```
+   
+        pip install flake8-html
+   
 
 2. **Run `flake8`** on your project with the option to generate an HTML report :
-   ```bash
-   flake8 --format=html --htmldir=flake8-report
-   ```
+   
+        flake8 --format=html --htmldir=flake8-report
+   
 
    This generates a `flake8-report.html` file in the current directory with details of any code style errors detected.
 
