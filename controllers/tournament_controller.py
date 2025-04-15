@@ -65,7 +65,7 @@ class TournamentController:
         """Creates a new tournament and optionally adds players."""
         name_tournament = get_input("\tTournament name: ").strip()
         location = get_input("\tTournament location: ").strip()
-        start_date = get_input("\tStart date of the tournament:").strip()
+        start_date = get_input("\tStart date of the tournament (YYYY-MM-DD HH:MM):").strip()
         while True:
             number_rounds_input = get_input("\tNumber of tournament rounds (default: 4): ").strip()
 

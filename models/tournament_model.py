@@ -151,10 +151,7 @@ class Tournament:
             return None
 
         for tournament in Tournament.all_tournaments:
-            display_message(
-                f"ID: {tournament.id} | Name: {tournament.name_tournament} | Location: {tournament.location}"
-                f"| Start date: {tournament.start_date} | End date: {tournament.end_date}"
-            )
+            display_message(f"ID: {tournament.id} | Name: {tournament.name_tournament} ")
 
         while True:
             tournament_id = get_input("Enter the ID of the tournament you want to select: (or 'q' to quit): ").strip()
