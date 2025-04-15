@@ -37,7 +37,7 @@ For the rest of the procedure, please refer to the git documentation: https://do
 3. **Activate virtual environment**
 
         ```bash           
-        <your-virtual-env-name>\Scripts\activate.bat (sous Windows)
+        <your-virtual-env-name>\Scripts\activate (sous Windows)
          ```          
 	or
         ```bash            
