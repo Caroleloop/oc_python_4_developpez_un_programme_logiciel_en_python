@@ -1,7 +1,7 @@
 
-# Tournament Management System
+#  Chess tournament software
 
-This project implements a tournament management system, allowing you to manage tournaments, players, rounds and scores. It is designed for use in chess tournaments.
+This project implements a chess tournament software, allowing you to manage tournaments, players, rounds and scores. It is designed for use in chess tournaments.
 
 
 ## Requirements
@@ -13,16 +13,14 @@ Before running the program, please ensure that the following prerequisites are i
   python --version
   ```
 
-
-## ERunning the program
+## Running the program
 
 ### Start program
 
 1. **Connect this repository** to your local machine:
-   ```bash
-   git clone https://github.com/Caroleloop/oc_python_4_developpez_un_programme_logiciel_en_python.git
-   cd tournament-management
-   ```
+
+Go to page : https://github.com/Caroleloop/oc_python_4_developpez_un_programme_logiciel_en_python
+For the rest of the procedure, please refer to the git documentation: https://docs.github.com/fr/repositories/creating-and-managing-repositories/cloning-a-repository
 
 
 2. **Create a virtual environment**
@@ -69,13 +67,13 @@ Here is an overview of the project structure:
 ```
 tournament-management/
 │
-├── controllers/ 			# Contains the tournament logic control files.
-├── models/					# Contains data models (Tournament, Player, etc.)
-├── views/ 					# Contains views for user display
-├── utils/ 					# Contains utility functions
-├── main.py 				# Main file for executing the program
+├── controllers/ 		# Contains the tournament logic control files.
+├── models/			# Contains data models (Tournament, Player, etc.)
+├── views/ 			# Contains views for user display
+├── utils/ 			# Contains utility functions
+├── main.py 		# Main file for executing the program
 ├── requirements.txt 		# Dependency file for installing the necessary packages
-└── README.md 				# Documentation for this project
+└── README.md 			# Documentation for this project
 ```
 
 ## Application
@@ -88,15 +86,34 @@ tournament-management/
 ### Main controls
 Here is a list of the main actions you can perform in the program menu:
 
-1. Create a new tournament
-2. Add players to a tournament
-3. Remove players from a tournament
-4. Create a new round
-5. Update match scores
-6. Modify a tournament
-7. Delete tournament
-8. Display information on all tournaments
-9. Exit program
+Welcome to the chess tournament program.
+1. Player management
+2. Tournaments management
+3. View reports
+4. Exit
+
+Player management
+1. Add a player
+2. Modify a player
+3. Delete a player
+4. Display players
+5. Return to main menu
+
+Tournament management
+1. Create a tournament
+2. Starting / Resuming a tournament
+3. Modifying a tournament
+4. Delete a tournament
+5. Display tournament
+6. Return to main menu
+
+View reports
+1. List of players in alphabetical order
+2. List of tournaments
+3. Name and date of a given tournament
+4. List of tournament players in alphabetical order
+5. List of tournament rounds and matches
+6. Return to main menu
 
 ## Generate a `flake8` report in HTML format
 
@@ -118,8 +135,7 @@ To guarantee code quality, you can use **Flake8** to analyze the code and genera
 
 3. **View HTML report**:
    Open the `flake8-report.html` file in your browser to see the results of the analysis.
-   
-   
+
    
 ## Auteurs
 
