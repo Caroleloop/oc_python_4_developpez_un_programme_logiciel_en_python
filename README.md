@@ -58,17 +58,15 @@ or
 
 Here is an overview of the project structure:
 
-```
 tournament-management/
 │
-├── controllers/ 		# Contains the tournament logic control files.
-├── models/			# Contains data models (Tournament, Player, etc.)
-├── views/ 			# Contains views for user display
-├── utils/ 			# Contains utility functions
-├── main.py 	      	   # Main file for executing the program
-├── requirements.txt 		# Dependency file for installing the necessary packages
-└── README.md 			# Documentation for this project
-```
+├── controllers/        # Contains the tournament logic control files.
+├── models/             # Contains data models (Tournament, Player, etc.)
+├── views/              # Contains views for user display
+├── utils/              # Contains utility functions
+├── main.py             # Main file for executing the program
+├── requirements.txt    # Dependency file for installing the necessary packages
+└── README.md           # Documentation for this project
 
 ## Application
 
