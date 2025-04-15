@@ -101,6 +101,7 @@ class Tournament:
                 tournament.rounds = tournament_data.get("rounds", [])
                 tournament.players = tournament_data.get("players", [])
                 tournament.id = tournament_data["id"]
+            Tournament.counter = max((t.id for t in Tournament.all_tournaments), default=0)
 
         except (json.JSONDecodeError, KeyError) as e:
             print(f"Error loading player data: {e}")
