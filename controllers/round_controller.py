@@ -160,51 +160,51 @@ class RoundController:
 
         # shuffle_player_by_score = self.shuffle_player_by_score(tournament_id)
         pairs_by_score = []
-        joueurs_deja_associes = set(self.past_matches)  # Copier les paires déjà jouées
-        joueurs_utilises = set()  # Liste des joueurs déjà affectés à un match
+        players_already_associated = set(self.past_matches)  # Copy pairs already played
+        used_players = set()  # List of players already assigned to a match
 
         i = 0
         while i < len(players_list_by_score):
-            joueur_1 = players_list_by_score[i]
+            player_1 = players_list_by_score[i]
 
-            if joueur_1 in joueurs_utilises:
+            if player_1 in used_players:
                 i += 1
                 continue
 
-            paire_trouvee = False
+            pair_found = False
 
-            # Chercher un joueur avec qui il n'a pas encore joué
+            # Search for a player he hasn't played with yet
             for j in range(i + 1, len(players_list_by_score)):
-                joueur_2 = players_list_by_score[j]
+                player_2 = players_list_by_score[j]
 
-                if joueur_2 in joueurs_utilises:
+                if player_2 in used_players:
                     continue
 
-                paire = (joueur_1, joueur_2)
-                paire_inverse = (joueur_2, joueur_1)
+                pair = (player_1, player_2)
+                reverse_pair = (player_2, player_1)
 
-                if paire not in joueurs_deja_associes and paire_inverse not in joueurs_deja_associes:
-                    pairs_by_score.append(paire)
-                    self.past_matches.add(paire)
-                    joueurs_utilises.update([joueur_1, joueur_2])
-                    paire_trouvee = True
+                if pair not in players_already_associated and reverse_pair not in players_already_associated:
+                    pairs_by_score.append(pair)
+                    self.past_matches.add(pair)
+                    used_players.update([player_1, player_2])
+                    pair_found = True
                     break
 
-            if not paire_trouvee:
-                # Aucun joueur dispo avec qui il n'a pas joué, on forcera à la fin
+            if not pair_found:
+                # No player available with whom he hasn't played, we'll force him at the end.
                 i += 1
             else:
-                i += 1  # Avance quand une paire est trouvée
+                i += 1  # Advance when a pair is found
 
-        # Forcer les paires restantes même si elles ont déjà été jouées
-        joueurs_restants = [j for j in players_list_by_score if j not in joueurs_utilises]
-        while len(joueurs_restants) >= 2:
-            joueur_1 = joueurs_restants.pop(0)
-            joueur_2 = joueurs_restants.pop(0)
-            paire = (joueur_1, joueur_2)
-            pairs_by_score.append(paire)
-            self.past_matches.add(paire)
-            joueurs_utilises.update([joueur_1, joueur_2])
+        # Force remaining pairs even if they have already been played
+        remaining_players = [j for j in players_list_by_score if j not in used_players]
+        while len(remaining_players) >= 2:
+            player_1 = remaining_players.pop(0)
+            player_2 = remaining_players.pop(0)
+            pair = (player_1, player_2)
+            pairs_by_score.append(pair)
+            self.past_matches.add(pair)
+            used_players.update([player_1, player_2])
 
         return pairs_by_score
 
