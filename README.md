@@ -128,7 +128,7 @@ To guarantee code quality, you can use **Flake8** to analyze the code and genera
 
 2. **Run `flake8`** on your project with the option to generate an HTML report :
    ```bash
-   flake8 --output-file=flake8-report.html --format=html
+   flake8 --format=html --htmldir=flake8-report
    ```
 
    This generates a `flake8-report.html` file in the current directory with details of any code style errors detected.
