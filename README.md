@@ -13,12 +13,6 @@ Before running the program, please ensure that the following prerequisites are i
   python --version
   ```
 
-- **Additional dependencies**: Install the necessary libraries by running:
-  ```bash
-  pip install -r requirements.txt
-  ```
-
-  The `requirements.txt` file should contain the libraries required for your project (e.g. Flask, etc.).
 
 ## ERunning the program
 
@@ -30,12 +24,43 @@ Before running the program, please ensure that the following prerequisites are i
    cd tournament-management
    ```
 
-2. **Run the program** using Python:
+
+2. **Create a virtual environment**
+
++ Go to the current folder
+
++ Create your virtual environment
+
+        ```bash            
+        python -m venv <your-virtual-env-name>
+	   ```         
+
+
+3. **Activate virtual environment**
+
+        ```bash           
+        <your-virtual-env-name>\Scripts\activate.bat (sous Windows)
+         ```          
+	or
+        ```bash            
+        source <your-virtual-env-name>/bin/activate (sous Mac/Linux)
+        ```          
+
+
+4. **Package installation**  Install the necessary libraries by running:
+
+        ```bash            
+        pip install -r requirements.txt
+        ```            
+ The `requirements.txt` file should contain the libraries required for your project (e.g. Flask, etc.).
+
+5. **Run the program** using Python:
    ```bash
    python main.py
    ```
 
    The program starts up and presents you with a menu where you can choose various actions, such as creating a tournament, adding players and so on.
+   
 
 ### Project structure
 
@@ -63,34 +88,15 @@ tournament-management/
 ### Main controls
 Here is a list of the main actions you can perform in the program menu:
 
-Welcome to the chess tournament program.
-1. Player management
-2. Tournaments management
-3. View reports
-4. Exit
-
-Player management
-1. Add a player
-2. Modify a player
-3. Delete a player
-4. Display players
-5. Return to main menu
-
-Tournament management
-1. Create a tournament
-2. Starting / Resuming a tournament
-3. Modifying a tournament
-4. Delete a tournament
-5. Display tournament
-6. Return to main menu
-
-View reports
-1. List of players in alphabetical order
-2. List of tournaments
-3. Name and date of a given tournament
-4. List of tournament players in alphabetical order
-5. List of tournament rounds and matches
-6. Return to main menu
+1. Create a new tournament
+2. Add players to a tournament
+3. Remove players from a tournament
+4. Create a new round
+5. Update match scores
+6. Modify a tournament
+7. Delete tournament
+8. Display information on all tournaments
+9. Exit program
 
 ## Generate a `flake8` report in HTML format
 
@@ -112,3 +118,9 @@ To guarantee code quality, you can use **Flake8** to analyze the code and genera
 
 3. **View HTML report**:
    Open the `flake8-report.html` file in your browser to see the results of the analysis.
+   
+   
+   
+## Auteurs
+
+* **Carole Roch** _alias_ [@Caroleloop](https://github.com/Caroleloop)
