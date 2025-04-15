@@ -58,7 +58,7 @@ or
 
 Here is an overview of the project structure:
 
-'''
+```
 tournament-management/
 │
 ├── controllers/        # Contains the tournament logic control files.
@@ -68,7 +68,7 @@ tournament-management/
 ├── main.py             # Main file for executing the program
 ├── requirements.txt    # Dependency file for installing the necessary packages
 └── README.md           # Documentation for this project
-'''
+```
 
 ## Application
 
