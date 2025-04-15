@@ -65,7 +65,7 @@ tournament-management/
 ├── models/			# Contains data models (Tournament, Player, etc.)
 ├── views/ 			# Contains views for user display
 ├── utils/ 			# Contains utility functions
-├── main.py 	   	   # Main file for executing the program
+├── main.py 	      	   # Main file for executing the program
 ├── requirements.txt 		# Dependency file for installing the necessary packages
 └── README.md 			# Documentation for this project
 ```
